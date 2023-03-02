@@ -1,0 +1,49 @@
+[tool.pdm]
+[tool.pdm.dev-dependencies]
+
+[project]
+name = "dbtvault-generator"
+version = "0.1.0"
+description = "A little util to help you generate DBTVault SQL files from metadata, while we wait for DBTLabs to add meta to the execution context"
+authors = [
+    {name = "Alex Stenlake", email = "alex.stenlake@gmail.com"},
+]
+dependencies = [
+    "click>=8.1.3",
+]
+requires-python = ">=3.9"
+readme = "README.md"
+license = {text = "Apache-2.0"}
+
+
+[build-system]
+requires = ["pdm-pep517>=1.0"]
+build-backend = "pdm.pep517.api"
+
+
+[tool.pdm.scripts]
+dbtv-gen = {call ="dbtvault_generator.main:main"}
+git-hooks = { shell = "pre-commit install --install-hooks && pre-commit install --hook-type commit-msg" }
+autoflake-fix = {cmd = "autoflake ."}
+black-fix = {cmd = "black ."}
+isort-fix = {cmd = "isort ."}
+flake8-check = {cmd = "flake8 ."}
+black-check = {cmd = "black --check ."}
+isort-check = {cmd = "isort --check-only ."}
+format = {composite = ["autoflake-fix", "black-fix", "isort-fix"]}
+lint = {composite = ["flake8-check", "black-check", "isort-check"]}
+
+
+[tool.isort]
+multi_line_output = 3
+force_to_top = ["os", "sys"]
+profile = "black"
+skip_gitignore = true
+
+[tool.autoflake]
+recursive = true
+in-place = true
+remove-all-unused-imports = true
+ignore-init-module-imports = true
+remove-unused-variables = true
+ignore-pass-statements = false
