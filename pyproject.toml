@@ -1,5 +1,15 @@
 [tool.pdm]
 [tool.pdm.dev-dependencies]
+dev = [
+    "mypy>=1.0.1",
+    "types-click>=7.1.8",
+    "black>=23.1.0",
+    "flake8>=6.0.0",
+    "isort>=5.12.0",
+    "autoflake>=2.0.1",
+    "pytest>=7.2.1",
+    "pre-commit>=3.1.1",
+]
 
 [project]
 name = "dbtvault-generator"
@@ -9,13 +19,17 @@ authors = [
     {name = "Alex Stenlake", email = "alex.stenlake@gmail.com"},
 ]
 dependencies = [
-    "click>=8.1.3",
-    "dbt-core>=1.4.4",
+    "dbt-core>1.0.0",
+    "pydantic>=1.10.5",
+    "typer[all]>=0.7.0",
+    "schema>=0.7.5",
 ]
 requires-python = ">=3.9"
 readme = "README.md"
 license = {text = "Apache-2.0"}
 
+[project.scripts]
+dbtv-gen = "dbtvault_generator.main:main"
 
 [build-system]
 requires = ["pdm-pep517>=1.0"]
@@ -25,14 +39,16 @@ build-backend = "pdm.pep517.api"
 [tool.pdm.scripts]
 dbtv-gen = {call ="dbtvault_generator.main:main"}
 git-hooks = { shell = "pre-commit install --install-hooks && pre-commit install --hook-type commit-msg" }
+test = {shell = "pytest ."}
 autoflake-fix = {cmd = "autoflake ."}
 black-fix = {cmd = "black ."}
 isort-fix = {cmd = "isort ."}
 flake8-check = {cmd = "flake8 ."}
 black-check = {cmd = "black --check ."}
 isort-check = {cmd = "isort --check-only ."}
+mypy-check = "mypy --namespace-packages --check-untyped-defs ."
 format = {composite = ["autoflake-fix", "black-fix", "isort-fix"]}
-lint = {composite = ["flake8-check", "black-check", "isort-check"]}
+lint = {composite = ["mypy-check","flake8-check", "black-check", "isort-check"]}
 
 
 [tool.isort]

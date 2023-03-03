@@ -8,3 +8,5 @@ DBTVault is a great tool, but due to quirks of DBT (looking at you, compile cont
 
 
 ## Installation Instructions
+
+For now, using PDM as dependency manager as it seems to be better supported than Poetry. As such, give PDM a try! It's like Yarn for Python, or Poetry with a faster resolver and Poe built in.
