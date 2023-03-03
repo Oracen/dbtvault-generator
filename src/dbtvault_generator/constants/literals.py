@@ -1,0 +1,8 @@
+DBTVG_YAML_NAME = "dbtvault.yml"
+DBTVG_CONFIG_KEY = "dbtvault"
+DBTVG_DEFAULTS_KEY = "defaults"
+DBTVG_OPTIONS_KEY = "options"
+DBTVG_MODELS_KEY = "models"
+DBTVG_TARGET_PATH_KEY = "target_path"
+DBTVG_LOCATION_KEY = "location"
+DBTVG_NAME_KEY = "name"
