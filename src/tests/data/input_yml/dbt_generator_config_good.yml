@@ -19,40 +19,41 @@ dbtvault:
     custom_macros:
       stage: stage_timelimit # Testing usecases where certain functions need to be overwritten
   models:
-    stage:
-      - name: clients
-        options:
-          use_prefix: false
-          target_path: "raw_vault/staging"
-        dbtvault_arguments:
-          include_source_columns: false
-          source_model:
-            main_db: mClientData
-          derived_columns:
-            SOURCE: "!1"
-            LOAD_DATETIME: "CRM_INGESTION_TIME"
-          null_columns:
-            LAST_TICKET_DATE: "lastTicketDate"
-          hashed_columns:
-            CLIENT_HASHKEY: "CLIENT_ID"
-            CUSTOMER_NATION_HK:
-              - "CUSTOMER_ID"
-              - "NATION_ID"
-          ranked_columns:
-            one : "two" # Not sure of the format here
-      - name: clients2
-        dbtvault_arguments:
-          include_source_columns: false
-          source_model:
-            main_db: mClientData
-          derived_columns:
-            SOURCE: "!1"
-            LOAD_DATETIME: "CRM_INGESTION_TIME"
-          null_columns:
-            LAST_TICKET_DATE: "lastTicketDate"
-          hashed_columns:
-            CLIENT_HASHKEY: "CLIENT_ID"
-            CUSTOMER_NATION_HK:
-              - "CUSTOMER_ID"
-              - "NATION_ID"
-          ranked_columns: []
+    - name: clients
+      model_type: stage
+      options:
+        use_prefix: false
+        target_path: "raw_vault/staging"
+      dbtvault_arguments:
+        include_source_columns: false
+        source_model:
+          main_db: mClientData
+        derived_columns:
+          SOURCE: "!1"
+          LOAD_DATETIME: "CRM_INGESTION_TIME"
+        null_columns:
+          LAST_TICKET_DATE: "lastTicketDate"
+        hashed_columns:
+          CLIENT_HASHKEY: "CLIENT_ID"
+          CUSTOMER_NATION_HK:
+            - "CUSTOMER_ID"
+            - "NATION_ID"
+        ranked_columns:
+          one : "two" # Not sure of the format here
+    - name: clients2
+      model_type: stage
+      dbtvault_arguments:
+        include_source_columns: false
+        source_model:
+          main_db: mClientData
+        derived_columns:
+          SOURCE: "!1"
+          LOAD_DATETIME: "CRM_INGESTION_TIME"
+        null_columns:
+          LAST_TICKET_DATE: "lastTicketDate"
+        hashed_columns:
+          CLIENT_HASHKEY: "CLIENT_ID"
+          CUSTOMER_NATION_HK:
+            - "CUSTOMER_ID"
+            - "NATION_ID"
+        ranked_columns: []

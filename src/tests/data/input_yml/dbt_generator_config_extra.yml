@@ -2,21 +2,22 @@ version: 2
 
 dbtvault:
   models:
-    stage:
-      - name: clients3
-        dbtvault_arguments:
-          include_source_columns: false
-          source_model:
-            main_db: mClientData
-          derived_columns:
-            SOURCE: "!1"
-            LOAD_DATETIME: "CRM_INGESTION_TIME"
-          null_columns:
-            LAST_TICKET_DATE: "lastTicketDate"
-          hashed_columns:
-            CLIENT_HASHKEY: "CLIENT_ID"
-            CUSTOMER_NATION_HK:
-              - "CUSTOMER_ID"
-              - "NATION_ID"
-          ranked_columns:
-            one : "two"
+
+    - name: clients3
+      model_type: stage
+      dbtvault_arguments:
+        include_source_columns: false
+        source_model:
+          main_db: mClientData
+        derived_columns:
+          SOURCE: "!1"
+          LOAD_DATETIME: "CRM_INGESTION_TIME"
+        null_columns:
+          LAST_TICKET_DATE: "lastTicketDate"
+        hashed_columns:
+          CLIENT_HASHKEY: "CLIENT_ID"
+          CUSTOMER_NATION_HK:
+            - "CUSTOMER_ID"
+            - "NATION_ID"
+        ranked_columns:
+          one : "two"

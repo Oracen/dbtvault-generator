@@ -92,10 +92,10 @@ def build_model_config(
     new_config: types.Mapping,
     config_path: str,
 ) -> types.Mapping:
+    defaults = deepcopy(defaults)
     if new_config.get(literals.DBTVG_TARGET_PATH_KEY, "") == "":
         # If emtpy, we get rid of overwrite and let base key be default
-        new_config.pop(literals.DBTVG_TARGET_PATH_KEY, None)
-
+        defaults.pop(literals.DBTVG_TARGET_PATH_KEY, None)
     # Merge cleaned config
     new_config = recursive_merge(defaults, new_config)
 
@@ -105,9 +105,7 @@ def build_model_config(
     return new_config
 
 
-def model_param_factory(
-    model_type: types.DBTVaultModel, params: types.Mapping
-) -> types.DBTVGModelParams:
+def model_param_factory(model_type, params: types.Mapping) -> types.DBTVGModelParams:
     if model_type == "stage":
         return types.DBTVGModelStageParams(**params)
     elif model_type not in get_args(types.DBTVaultModel):
@@ -119,7 +117,6 @@ def parse_model_definition(
     model_dict: types.Mapping,
     defaults: types.Mapping,
     config_path: str,
-    model_type: types.DBTVaultModel,
 ) -> types.DBTVGModelParams:
     options = model_dict.get(literals.DBTVG_OPTIONS_KEY, {})
     model_dict[literals.DBTVG_OPTIONS_KEY] = build_model_config(
@@ -127,15 +124,23 @@ def parse_model_definition(
     )
     model_dict[literals.DBTVG_LOCATION_KEY] = config_path
 
+    name = model_dict.get(literals.DBTVG_NAME_KEY, "--NAME MISSING--")
+    error_prefix = f"The param object at location {config_path} with name {name} has"
+
+    model_type = model_dict.get(literals.DBTVG_MODEL_TYPE_KEY, None)
+    if model_type not in get_args(types.DBTVaultModel):
+        raise exceptions.DBTVaultConfigInvalidError(
+            f"{error_prefix} has invalid type {str(model_type)}"
+        )
     try:
         return model_param_factory(model_type, model_dict)
     except pydantic.ValidationError as ve:
         # If validation fails, pass up a truncated error message to the cli
-        name = model_dict.get(literals.DBTVG_NAME_KEY, "--NAME MISSING--")
+
         errors = [item.get("loc") for item in ve.errors()]
         raise exceptions.DBTVaultConfigInvalidError(
-            f"The param object at location {config_path} with name {name} has "
-            f"raised validation errors on the following fields: {str(errors)}"
+            f"{error_prefix} raised validation errors on the following fields:"
+            f"{str(errors)}"
         )
 
 
@@ -147,38 +152,41 @@ def process_config_collection(configs: Dict[str, types.Mapping]):
     )
     root_defaults = types.DBTVGConfig(**cfg).dict()
 
-    models: DefaultDict[str, List[types.DBTVGModelParams]] = defaultdict(list)
+    models: List[types.DBTVGModelParams] = []
     for config_loc, local_config in configs.items():
         # Always update the keys - we want to propagate the default values out
         default_config = recursive_merge(
             root_defaults, local_config.get(literals.DBTVG_DEFAULTS_KEY, {})
         )
-        local_models = local_config[literals.DBTVG_MODELS_KEY]
         # Iterate over each of the files, update the config and append to the
-        # dict that will construct the config object.
-        for model_type in get_args(types.DBTVaultModel):
-            # Move the model configs into their configured form - each is now
-            # independent of default configs
-            model_configs = [
-                parse_model_definition(item, default_config, config_loc, model_type)
-                for item in local_models.get(model_type, [])
-            ]
-            models[model_type].extend(model_configs)
+        # dict that will construct the config object. This moves the model configs
+        # into their configured form - each is now independent of default configs
+        model_configs = [
+            parse_model_definition(item, default_config, config_loc)
+            for item in local_config.get(literals.DBTVG_MODELS_KEY, [])
+        ]
+        models.extend(model_configs)
 
     # Check for duplicate model names
     duplicates = [""]
     check: Dict[str, str] = {}
-    for model_list in models.values():
-        for item in model_list:
-            cname = check.get(item.name, "")
-            if cname != "":
-                duplicates.append(f"{item.name}: {cname} and {item.location}")
-            else:
-                check[item.name] = item.location
+    for item in models:
+        cname = check.get(item.name, "")
+        if cname != "":
+            duplicates.append(f"{item.name}: {cname} and {item.location}")
+        else:
+            check[item.name] = item.location
     # Empty string as sentinel value
     if len(duplicates) > 1:
         err_loc = "\n".join(duplicates)
         raise exceptions.DBTVaultConfigInvalidError(
             f"Duplicate model names detected: {err_loc}"
         )
-    return types.DBTVGModels(**models)
+
+    return models
+
+
+def get_model_path(project_dir: Path, params: types.DBTVGModelParams):
+    pass
+    # name = params.name
+    # if params.options.use_prefix:

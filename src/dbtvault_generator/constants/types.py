@@ -39,6 +39,7 @@ class DBTVGConfig(pydantic.BaseModel):
 
 class DBTVGModelParams(pydantic.BaseModel):
     name: str
+    model_type: DBTVaultModel
     location: str
     options: DBTVGConfig
 
@@ -47,16 +48,13 @@ class DBTVStageParams(pydantic.BaseModel):
     include_source_columns: bool = True
     source_model: Mapping
     derived_columns: Optional[Mapping] = None
+    null_columns: Optional[Mapping] = None
     hashed_columns: Optional[Mapping] = None
     ranked_columns: Optional[Mapping] = None
 
 
 class DBTVGModelStageParams(DBTVGModelParams):
     dbtvault_arguments: DBTVStageParams
-
-
-class DBTVGModels(pydantic.BaseModel):
-    stage: List[DBTVGModelParams]
 
 
 PipeOutput = Tuple[str, str, bool]

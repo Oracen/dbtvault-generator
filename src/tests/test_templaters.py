@@ -17,7 +17,8 @@ good_yml = file_io.read_yml_file(
 
 class TestTemplaters(unittest.TestCase):
     def test_basic_yaml_coercion(self):
-        params: Dict[str, Any] = {**good_yml["models"]["stage"][0], "location": ""}
+        params: Dict[str, Any] = {**good_yml["models"][0], "location": ""}
         stage_model = types.DBTVGModelStageParams(**params)
-
-        templaters.dbtvault_stage(stage_model)
+        templater = templaters.templater_factory(stage_model.model_type)
+        print(templater(stage_model))
+        raise ValueError

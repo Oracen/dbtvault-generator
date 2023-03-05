@@ -17,13 +17,13 @@ class TestValidate(unittest.TestCase):
             "file not found",
         )[literals.DBTVG_CONFIG_KEY]
 
-        output = params.process_config_collection({".": good_yml})
-        self.assertEqual(
-            len(output.stage), 2, "good yaml should only have 2 stage objects"
-        )
+        output = params.process_config_collection({"./path/to/file": good_yml})
+        # print(output[1])
+        # raise ValueError
+        self.assertEqual(len(output), 2, "good yaml should only have 2 stage objects")
         self.assertNotEqual(
-            output.stage[0].options.target_path,
-            output.stage[1].options.target_path,
+            output[0].options.target_path,
+            output[1].options.target_path,
             "Path specification is being overwritten",
         )
 
@@ -41,8 +41,8 @@ class TestValidate(unittest.TestCase):
             {".": good_yml, "./models/data_vault": extra_yml}
         )
 
-        self.assertEqual(len(output.stage), 3)
-        self.assertTrue(output.stage[-1].options.prefixes)
+        self.assertEqual(len(output), 3)
+        self.assertTrue(output[-1].options.prefixes)
 
     def test_process_config_collection_failures(self):
         good_yml, bad_yml = (

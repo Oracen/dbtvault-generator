@@ -1,8 +1,8 @@
 import abc
 from pathlib import Path
-from typing import get_args
 
-from dbtvault_generator.constants import types
+from dbtvault_generator.constants import literals, types
+from dbtvault_generator.files import file_io
 from dbtvault_generator.parsers import params
 from dbtvault_generator.parsers.templaters import templater_factory
 
@@ -43,7 +43,16 @@ class SqlGenerator(BaseGenerator):
             )
         # Run through all the files and builds the sql as appropriate
         models = params.process_config_collection(configs)
-        for model_type in get_args(types.DBTVaultModel):
-            templater = templater_factory(model_type)
-            for model_config in getattr(models, model_type):
-                templater(model_config)
+        for model_config in models:
+            templater = templater_factory(model_config.model_type)
+            template_string = templater(model_config)
+            # Allow for prefixing to be dynamic
+            prefix = (
+                model_config.options.prefixes[model_config.model_type]
+                if model_config.options.use_prefix
+                else ""
+            )
+            name = f"{prefix}{model_config.name}.{literals.SQL_FILE_EXT}"
+            file_location = Path(project_config / model_config.options.target_path)
+            file_location.mkdir(parents=True, exist_ok=True)
+            file_io.write_text(file_location / name, template_string)

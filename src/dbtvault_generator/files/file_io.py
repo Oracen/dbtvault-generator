@@ -16,3 +16,8 @@ def read_yml_file(
     except ParserError:
         raise excepion(message)
     return output
+
+
+def write_text(filepath: Union[Path, str], payload: str):
+    with open(filepath, "w") as buffer:
+        buffer.write(payload)
