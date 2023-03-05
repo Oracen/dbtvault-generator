@@ -1,6 +1,7 @@
 # Custom
 .vscode
 dbtvault_gen_macros
+.pdm.toml
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
