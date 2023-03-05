@@ -20,5 +20,4 @@ class TestTemplaters(unittest.TestCase):
         params: Dict[str, Any] = {**good_yml["models"][0], "location": ""}
         stage_model = types.DBTVGModelStageParams(**params)
         templater = templaters.templater_factory(stage_model.model_type)
-        print(templater(stage_model))
-        raise ValueError
+        self.assertFalse("none" in templater(stage_model))

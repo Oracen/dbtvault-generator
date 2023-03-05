@@ -18,8 +18,6 @@ class TestValidate(unittest.TestCase):
         )[literals.DBTVG_CONFIG_KEY]
 
         output = params.process_config_collection({"./path/to/file": good_yml})
-        # print(output[1])
-        # raise ValueError
         self.assertEqual(len(output), 2, "good yaml should only have 2 stage objects")
         self.assertNotEqual(
             output[0].options.target_path,
