@@ -39,7 +39,7 @@ class TestValidate(unittest.TestCase):
             {".": good_yml, "./models/data_vault": extra_yml}
         )
 
-        self.assertEqual(len(output), 3)
+        self.assertEqual(len(output), 12)
         self.assertTrue(output[-1].options.prefixes)
 
     def test_process_config_collection_failures(self):

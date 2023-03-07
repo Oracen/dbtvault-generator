@@ -9,15 +9,14 @@ dev = [
     "autoflake>=2.0.1",
     "pytest>=7.2.1",
     "pre-commit>=3.1.1",
+    "types-pyyaml>=6.0.12.8",
 ]
 
 [project]
 name = "dbtvault-generator"
 version = "0.1.0"
 description = "A little util to help you generate DBTVault SQL files from metadata, while we wait for DBTLabs to add meta to the execution context"
-authors = [
-    {name = "Alex Stenlake", email = "alex.stenlake@gmail.com"},
-]
+authors = [{ name = "Alex Stenlake", email = "alex.stenlake@gmail.com" }]
 dependencies = [
     "dbt-core>1.0.0",
     "pydantic>=1.10.5",
@@ -26,7 +25,7 @@ dependencies = [
 ]
 requires-python = ">=3.9"
 readme = "README.md"
-license = {text = "Apache-2.0"}
+license = { text = "Apache-2.0" }
 
 [project.scripts]
 dbtv-gen = "dbtvault_generator.main:main"
@@ -37,18 +36,23 @@ build-backend = "pdm.pep517.api"
 
 
 [tool.pdm.scripts]
-dbtv-gen = {call ="dbtvault_generator.main:main"}
+dbtv-gen = { call = "dbtvault_generator.main:main" }
 git-hooks = { shell = "pre-commit install --install-hooks && pre-commit install --hook-type commit-msg" }
-test = {shell = "pytest ."}
-autoflake-fix = {cmd = "autoflake ."}
-black-fix = {cmd = "black ."}
-isort-fix = {cmd = "isort ."}
-flake8-check = {cmd = "flake8 ."}
-black-check = {cmd = "black --check ."}
-isort-check = {cmd = "isort --check-only ."}
+test = { shell = "pytest ." }
+autoflake-fix = { cmd = "autoflake ." }
+black-fix = { cmd = "black ." }
+isort-fix = { cmd = "isort ." }
+flake8-check = { cmd = "flake8 ." }
+black-check = { cmd = "black --check ." }
+isort-check = { cmd = "isort --check-only ." }
 mypy-check = "mypy --namespace-packages --check-untyped-defs ."
-format = {composite = ["autoflake-fix", "black-fix", "isort-fix"]}
-lint = {composite = ["mypy-check","flake8-check", "black-check", "isort-check"]}
+format = { composite = ["autoflake-fix", "black-fix", "isort-fix"] }
+lint = { composite = [
+    "mypy-check",
+    "flake8-check",
+    "black-check",
+    "isort-check",
+] }
 
 
 [tool.isort]

@@ -603,6 +603,11 @@ version = "7.1.8"
 summary = "Typing stubs for click"
 
 [[package]]
+name = "types-pyyaml"
+version = "6.0.12.8"
+summary = "Typing stubs for PyYAML"
+
+[[package]]
 name = "typing-extensions"
 version = "4.5.0"
 requires_python = ">=3.7"
@@ -636,7 +641,7 @@ dependencies = [
 
 [metadata]
 lock_version = "4.1"
-content_hash = "sha256:df3cac0c66beeb77794bc2ec744e7b83da5b423ac71276f3ca872d98fe37e49c"
+content_hash = "sha256:798b3148889104e94f77d88cca123f73d49f98e12e9f429cb871677d61860115"
 
 [metadata.files]
 "agate 1.7.0" = [
@@ -1416,6 +1421,10 @@ content_hash = "sha256:df3cac0c66beeb77794bc2ec744e7b83da5b423ac71276f3ca872d98f
 "types-click 7.1.8" = [
     {url = "https://files.pythonhosted.org/packages/00/ff/0e6a56108d45c80c61cdd4743312d0304d8192482aea4cce96c554aaa90d/types-click-7.1.8.tar.gz", hash = "sha256:b6604968be6401dc516311ca50708a0a28baa7a0cb840efd7412f0dbbff4e092"},
     {url = "https://files.pythonhosted.org/packages/ee/ad/607454a5f991c5b3e14693a7113926758f889138371058a5f72f567fa131/types_click-7.1.8-py3-none-any.whl", hash = "sha256:8cb030a669e2e927461be9827375f83c16b8178c365852c060a34e24871e7e81"},
+]
+"types-pyyaml 6.0.12.8" = [
+    {url = "https://files.pythonhosted.org/packages/6e/8f/50d9f23d47e14ede98321802e211456b93ef90b100c39908b7362aa758ff/types-PyYAML-6.0.12.8.tar.gz", hash = "sha256:19304869a89d49af00be681e7b267414df213f4eb89634c4495fa62e8f942b9f"},
+    {url = "https://files.pythonhosted.org/packages/f5/a2/3ba05e1ad55e83fb32cc745dc5056347c6c76bf030f3b1ab43e07cd013be/types_PyYAML-6.0.12.8-py3-none-any.whl", hash = "sha256:5314a4b2580999b2ea06b2e5f9a7763d860d6e09cdf21c0e9561daa9cbd60178"},
 ]
 "typing-extensions 4.5.0" = [
     {url = "https://files.pythonhosted.org/packages/31/25/5abcd82372d3d4a3932e1fa8c3dbf9efac10cc7c0d16e78467460571b404/typing_extensions-4.5.0-py3-none-any.whl", hash = "sha256:fb33085c39dd998ac16d1431ebc293a8b3eedd00fd4a32de0ff79002c19511b4"},

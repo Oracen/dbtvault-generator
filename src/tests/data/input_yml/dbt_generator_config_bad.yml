@@ -26,7 +26,8 @@ dbtvault:
         target_path: "raw_vault/staging"
       dbtvault_arguments:
         include_source_columns: false
-        source_model: mClientData
+        source_model:
+          one_name: mClientData
         derived_columns:
           SOURCE: "!1"
           LOAD_DATETIME: "CRM_INGESTION_TIME"
@@ -43,7 +44,8 @@ dbtvault:
       model_type: stage
       dbtvault_arguments:
         include_source_columns: false
-        source_model: mClientData
+        source_model:
+          table_name: mClientData
         derived_columns:
           SOURCE: "!1"
           LOAD_DATETIME: "CRM_INGESTION_TIME"

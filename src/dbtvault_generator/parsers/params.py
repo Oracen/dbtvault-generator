@@ -1,7 +1,6 @@
-from collections import defaultdict
 from copy import deepcopy
 from pathlib import Path
-from typing import Any, DefaultDict, Dict, List, Optional, Set, get_args
+from typing import Any, Dict, List, Optional, Set, get_args
 
 import pydantic
 import yaml
@@ -47,17 +46,19 @@ def reformat_arg_key(string: str) -> str:
 def cli_passthrough_arg_parser(args_dict: types.Mapping) -> List[str]:
     args_list: List[str] = []
     # Convert kv pairs to string list so they can be injected in later
-    {
+    for key, value in args_dict.items():
+        if value is None:
+            continue
         args_list.extend([reformat_arg_key(key), convert_to_string(value)])
-        for key, value in args_dict.items()
-        if value is not None
-    }
+
     return args_list
 
 
 def arg_handler(arg_string: Optional[str]) -> Dict[Any, Any]:
+    if arg_string is None:
+        return {}
     try:
-        args: types.Mapping = yaml.safe_load(arg_string) if arg_string != None else {}
+        args: types.Mapping = yaml.safe_load(arg_string)
     except ParserError:
         raise exceptions.ArgParseError(
             "The arguments passed in the --args field is not a valid yml string"
@@ -105,9 +106,29 @@ def build_model_config(
     return new_config
 
 
-def model_param_factory(model_type, params: types.Mapping) -> types.DBTVGModelParams:
+def model_param_factory(
+    model_type: types.DBTVaultModel, params: types.Mapping
+) -> types.DBTVGBaseModelParams:
     if model_type == "stage":
-        return types.DBTVGModelStageParams(**params)
+        return types.ModelStageParams(**params)
+    elif model_type == "hub":
+        return types.ModelHubParams(**params)
+    elif model_type == "link":
+        return types.ModelLinkParams(**params)
+    elif model_type == "t_link":
+        return types.ModelTLinkParams(**params)
+    elif model_type == "sat":
+        return types.ModelSatParams(**params)
+    elif model_type == "eff_sat":
+        return types.ModelEffSatParams(**params)
+    elif model_type == "ma_sat":
+        return types.ModelMaSatParams(**params)
+    elif model_type == "xts":
+        return types.ModelXtsParams(**params)
+    elif model_type == "pit":
+        return types.ModelPitParams(**params)
+    elif model_type == "bridge":
+        return types.ModelBridgeParams(**params)
     elif model_type not in get_args(types.DBTVaultModel):
         raise ValueError(f"Model_type {model_type} made it into model_param_factory")
     raise ValueError(f"Model type {model_type} not currently supported")
@@ -117,7 +138,7 @@ def parse_model_definition(
     model_dict: types.Mapping,
     defaults: types.Mapping,
     config_path: str,
-) -> types.DBTVGModelParams:
+) -> types.DBTVGBaseModelParams:
     options = model_dict.get(literals.DBTVG_OPTIONS_KEY, {})
     model_dict[literals.DBTVG_OPTIONS_KEY] = build_model_config(
         defaults, options, config_path
@@ -152,7 +173,7 @@ def process_config_collection(configs: Dict[str, types.Mapping]):
     )
     root_defaults = types.DBTVGConfig(**cfg).dict()
 
-    models: List[types.DBTVGModelParams] = []
+    models: List[types.DBTVGBaseModelParams] = []
     for config_loc, local_config in configs.items():
         # Always update the keys - we want to propagate the default values out
         default_config = recursive_merge(
@@ -186,7 +207,7 @@ def process_config_collection(configs: Dict[str, types.Mapping]):
     return models
 
 
-def get_model_path(project_dir: Path, params: types.DBTVGModelParams):
+def get_model_path(project_dir: Path, params: types.DBTVGBaseModelParams):
     pass
     # name = params.name
     # if params.options.use_prefix:

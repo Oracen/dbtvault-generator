@@ -2,9 +2,11 @@ version: 2
 
 dbtvault:
   models:
-
     - name: clients3
       model_type: stage
+      options:
+        use_prefix: false
+        target_path: "raw_vault/staging"
       dbtvault_arguments:
         include_source_columns: false
         source_model:
@@ -20,4 +22,167 @@ dbtvault:
             - "CUSTOMER_ID"
             - "NATION_ID"
         ranked_columns:
-          one : "two"
+          one : "two" # Not sure of the format here
+    - name: client_hub
+      model_type: hub
+      dbtvault_arguments:
+        src_pk: CUSTOMER_HK
+        src_nk: CUSTOMER_ID
+        src_extra_columns:
+          - one
+          - two
+        src_ldts: LOAD_DATETIME
+        src_source: RECORD_SOURCE
+        source_model:
+          - "v_stg_orders_web"
+          - "v_stg_orders_crm"
+          - "v_stg_orders_sap"
+    - name: client_link
+      model_type: link
+      dbtvault_arguments:
+        src_pk: CUSTOMER_ORDER_HK
+        src_fk: 
+          - "CUSTOMER_HK"
+          - "ORDER_HK"
+        src_extra_columns:
+          - three
+          - four
+        src_ldts: LOAD_DATETIME
+        src_source: RECORD_SOURCE
+        source_model: v_stg_orders
+    - name: client_trans_link
+      model_type: t_link
+      dbtvault_arguments:
+        src_pk: TRANSACTION_HK
+        src_fk:
+          - CUSTOMER_HK
+          - ORDER_HK
+        src_payload:
+          - TRANSACTION_NUMBER
+          - TRANSACTION_DATE
+          - TYPE
+          - AMOUNT
+        src_extra_columns:
+          - red
+          - blue
+        src_eff: EFFECTIVE_FROM
+        src_ldts: LOAD_DATETIME
+        src_source: RECORD_SOURCE
+        source_model: v_stg_transactions
+    - name: clients_sat
+      model_type: sat
+      dbtvault_arguments:
+        src_pk: CUSTOMER_HK
+        src_hashdiff: SUPPLIER_NATION_HASHDIFF
+        src_payload:
+          - "SUPPLIER_NATION_NAME"
+          - "SUPPLIER_NATION_COMMENT"
+        src_extra_columns:
+          - extra
+          - "more"
+        src_eff: EFFECTIVE_FROM
+        src_ldts: LOAD_DATE
+        src_source: RECORD_SOURCE
+        source_model: v_stg_inventory
+    - name: clients_eff_sat
+      model_type: eff_sat
+      dbtvault_arguments:
+        src_pk: CUSTOMER_NATION_HK
+        src_dfk: CUSTOMER_HK
+        src_sfk: NATION_HK
+        src_start_date: START_DATE
+        src_end_date: END_DATE
+        src_extra_columns:
+          - out
+          - of
+        src_eff: EFFECTIVE_FROM
+        src_ldts: LOAD_DATETIME
+        src_source: RECORD_SOURCE
+        source_model: v_stg_orders
+    - name: clients_ma_sat
+      model_type: ma_sat
+      dbtvault_arguments:
+        src_pk: CUSTOMER_HK
+        src_cdk:
+          - CUSTOMER_PHONE
+          - CUSTOMER_EMAIL
+        src_hashdiff: CUSTOMER_HASHDIFF
+        src_payload:
+          - CUSTOMER_NAME
+        src_eff: EFFECTIVE_FROM
+        src_extra_columns:
+          - of
+          - ideas
+        src_ldts: LOAD_DATETIME
+        src_source: RECORD_SOURCE
+        source_model: v_stg_orders
+    - name: clients_xts
+      model_type: xts
+      dbtvault_arguments:
+        src_pk: CUSTOMER_HK
+        src_satellite:
+          SATELLITE_CUSTOMER:
+            sat_name:
+              SATELLITE_NAME: SAT_SAP_CUSTOMER
+            hashdiff:                
+              HASHDIFF: CUSTOMER_HASHDIFF
+        src_extra_columns: adding_more_names
+        src_ldts: LOAD_DATETIME
+        src_source: RECORD_SOURCE
+        source_model: v_stg_customer
+    - name: clients_pit
+      model_type: pit
+      dbtvault_arguments:
+        src_pk: CUSTOMER_HK
+        as_of_dates_table: AS_OF_DATE
+        satellites:
+          SAT_CUSTOMER_DETAILS:
+            pk:
+              PK: CUSTOMER_HK
+            ldts:
+              LDTS: LOAD_DATETIME
+          SAT_CUSTOMER_LOGIN:
+            pk:
+              PK: CUSTOMER_HK
+            ldts:
+              LDTS: LOAD_DATETIME
+        stage_tables_ldts:
+          STG_CUSTOMER_DETAILS: LOAD_DATETIME
+          STG_CUSTOMER_LOGIN: LOAD_DATETIME 
+        src_ldts: LOAD_DATETIME
+        source_model: hub_customer
+    - name: clients_bridge
+      model_type: bridge
+      dbtvault_arguments:
+        source_model: hub_customer
+        src_pk: CUSTOMER_PK
+        src_ldts: LOAD_DATETIME
+        bridge_walk:
+          CUSTOMER_ORDER:
+            bridge_link_pk: LINK_CUSTOMER_ORDER_PK
+            bridge_end_date: EFF_SAT_CUSTOMER_ORDER_ENDDATE
+            bridge_load_date: EFF_SAT_CUSTOMER_ORDER_LOADDATE
+            link_table: LINK_CUSTOMER_ORDER
+            link_pk: CUSTOMER_ORDER_PK
+            link_fk1: CUSTOMER_FK
+            link_fk2: ORDER_FK
+            eff_sat_table: EFF_SAT_CUSTOMER_ORDER
+            eff_sat_pk: CUSTOMER_ORDER_PK
+            eff_sat_end_date: END_DATE
+            eff_sat_load_date: LOAD_DATETIME
+          ORDER_PRODUCT:
+            bridge_link_pk: LINK_ORDER_PRODUCT_PK
+            bridge_end_date: EFF_SAT_ORDER_PRODUCT_ENDDATE
+            bridge_load_date: EFF_SAT_ORDER_PRODUCT_LOADDATE
+            link_table: LINK_ORDER_PRODUCT
+            link_pk: ORDER_PRODUCT_PK
+            link_fk1: ORDER_FK
+            link_fk2: PRODUCT_FK
+            eff_sat_table: EFF_SAT_ORDER_PRODUCT
+            eff_sat_pk: ORDER_PRODUCT_PK
+            eff_sat_end_date: END_DATE
+            eff_sat_load_date: LOAD_DATETIME
+        as_of_dates_table: AS_OF_DATE
+        stage_tables_ldts:
+          STG_CUSTOMER_ORDER: LOAD_DATETIME
+          STG_ORDER_PRODUCT: LOAD_DATETIME

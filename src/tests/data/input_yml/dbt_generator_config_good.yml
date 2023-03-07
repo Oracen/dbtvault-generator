@@ -45,7 +45,7 @@ dbtvault:
       dbtvault_arguments:
         include_source_columns: false
         source_model:
-          main_db: mClientData
+          another_db: mClientData
         derived_columns:
           SOURCE: "!1"
           LOAD_DATETIME: "CRM_INGESTION_TIME"
