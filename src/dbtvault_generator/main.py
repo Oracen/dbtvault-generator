@@ -1,4 +1,4 @@
-from .cli import dbtvgen, handlers
+from dbtvault_generator.cli import dbtvgen, handlers
 
 
 def main():

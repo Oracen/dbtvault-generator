@@ -8,6 +8,10 @@ DBTVG_TARGET_PATH_KEY = "target_path"
 DBTVG_LOCATION_KEY = "location"
 DBTVG_NAME_KEY = "name"
 
+DEFAULT_MODELS = ["models"]
+DEFAULT_TARGET = "target"  # this is subject to change in 1.5
+
+
 # this seems dumb, but I may need to generate into fake file file types and let
 # people rename as they desire
 SQL_FILE_EXT = "sql"

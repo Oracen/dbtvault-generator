@@ -66,7 +66,9 @@ def arg_handler(arg_string: Optional[str]) -> Dict[Any, Any]:
     return args
 
 
-def get_dbt_project_config(project_path: Path) -> types.ProjectConfig:
+def get_dbt_project_config(
+    project_path: Path, cli_target_dir: Optional[str]
+) -> types.ProjectConfig:
     """Reads in the dbt_project file and pulls out required fields"""
     project_yml = project_path / "dbt_project.yml"
     if not (project_yml).is_file():
@@ -80,12 +82,17 @@ def get_dbt_project_config(project_path: Path) -> types.ProjectConfig:
         "The file dbt_project.yml is corrupted and cannot be read, "
         "please fix before continuing",
     )
-    model_dirs: List[str] = dbt_project.get("source-paths", [])
+    model_dirs: List[str] = dbt_project.get("source-paths", literals.DEFAULT_MODELS)
+    if cli_target_dir is None:
+        target_dir: str = dbt_project.get("target-path", literals.DEFAULT_TARGET)
+    else:
+        target_dir = cli_target_dir
+
     if len(model_dirs) == 0:
         raise exceptions.ProjectNotConfiguredError(
             "This project contains no model directories, code cannot be generated"
         )
-    return types.ProjectConfig(model_dirs=model_dirs)
+    return types.ProjectConfig(model_dirs=model_dirs, target_dir=target_dir)
 
 
 def build_model_config(

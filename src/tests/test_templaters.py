@@ -1,6 +1,6 @@
 import unittest
 from pathlib import Path
-from typing import Any, Dict, List
+from typing import List
 
 from dbtvault_generator.constants import literals, types
 from dbtvault_generator.files import file_io

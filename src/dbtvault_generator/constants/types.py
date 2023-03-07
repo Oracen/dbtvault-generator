@@ -7,7 +7,7 @@ DBTVaultModel = Literal[
     "stage", "hub", "link", "t_link", "sat", "eff_sat", "ma_sat", "xts", "pit", "bridge"
 ]
 YamlStringList = Union[List[str], str]
-Mapping = Dict[str, YamlStringList]
+Mapping = Dict[str, Any]
 
 
 class ProjectConfig(pydantic.BaseModel):
@@ -196,8 +196,15 @@ class ModelBridgeParams(DBTVGBaseModelParams):
     dbtvault_arguments: BridgeParams
 
 
+class RunnerConfig(pydantic.BaseModel):
+    project_dir: Path
+    models: List[DBTVGBaseModelParams]
+    args: Mapping
+    cli_args: List[str]
+
+
 PipeOutput = Tuple[str, str, bool]
 RunOperationFn = Callable[[str, List[str]], PipeOutput]
-GetProjectConfigFn = Callable[[Path], ProjectConfig]
+GetProjectConfigFn = Callable[[Path, str], ProjectConfig]
 FindDbtvaultGenConfig = Callable[[Path, str, bool], Dict[str, Mapping]]
 ReaderFunction = Callable[[Path, Type[Exception], str], Mapping]

@@ -114,53 +114,53 @@ def dbtvault_template_eff_sat(eff_sat_params: types.EffSatParams) -> str:
     return f"""{render_left}{code}{render_right}"""
 
 
-def dbtvault_template_ma_sat(eff_sat_params: types.MaSatParams) -> str:
+def dbtvault_template_ma_sat(ma_sat_params: types.MaSatParams) -> str:
     code = f"""dbtvault.ma_sat(
-{spc}{format_metadata_lookup(eff_sat_params, 'src_pk')},
-{spc}{format_metadata_lookup(eff_sat_params, 'src_cdk')},
-{spc}{format_metadata_lookup(eff_sat_params, 'src_hashdiff')},
-{spc}{format_metadata_lookup(eff_sat_params, 'src_payload')},
-{spc}{format_metadata_lookup(eff_sat_params, 'src_eff')},
-{spc}{format_metadata_lookup(eff_sat_params, 'src_extra_columns')},
-{spc}{format_metadata_lookup(eff_sat_params, 'src_ldts')},
-{spc}{format_metadata_lookup(eff_sat_params, 'src_source')},
-{spc}{format_metadata_lookup(eff_sat_params, 'source_model')}
+{spc}{format_metadata_lookup(ma_sat_params, 'src_pk')},
+{spc}{format_metadata_lookup(ma_sat_params, 'src_cdk')},
+{spc}{format_metadata_lookup(ma_sat_params, 'src_hashdiff')},
+{spc}{format_metadata_lookup(ma_sat_params, 'src_payload')},
+{spc}{format_metadata_lookup(ma_sat_params, 'src_eff')},
+{spc}{format_metadata_lookup(ma_sat_params, 'src_extra_columns')},
+{spc}{format_metadata_lookup(ma_sat_params, 'src_ldts')},
+{spc}{format_metadata_lookup(ma_sat_params, 'src_source')},
+{spc}{format_metadata_lookup(ma_sat_params, 'source_model')}
 )"""
     return f"""{render_left}{code}{render_right}"""
 
 
-def dbtvault_template_xts(eff_sat_params: types.XtsParams) -> str:
+def dbtvault_template_xts(xts_params: types.XtsParams) -> str:
     code = f"""dbtvault.xts(
-{spc}{format_metadata_lookup(eff_sat_params, 'src_pk')},
-{spc}{format_metadata_lookup(eff_sat_params, 'src_satellite')},
-{spc}{format_metadata_lookup(eff_sat_params, 'src_extra_columns')},
-{spc}{format_metadata_lookup(eff_sat_params, 'src_ldts')},
-{spc}{format_metadata_lookup(eff_sat_params, 'src_source')},
-{spc}{format_metadata_lookup(eff_sat_params, 'source_model')}
+{spc}{format_metadata_lookup(xts_params, 'src_pk')},
+{spc}{format_metadata_lookup(xts_params, 'src_satellite')},
+{spc}{format_metadata_lookup(xts_params, 'src_extra_columns')},
+{spc}{format_metadata_lookup(xts_params, 'src_ldts')},
+{spc}{format_metadata_lookup(xts_params, 'src_source')},
+{spc}{format_metadata_lookup(xts_params, 'source_model')}
 )"""
     return f"""{render_left}{code}{render_right}"""
 
 
-def dbtvault_template_pit(eff_sat_params: types.XtsParams) -> str:
+def dbtvault_template_pit(pit_params: types.PitParams) -> str:
     code = f"""dbtvault.pit(
-{spc}{format_metadata_lookup(eff_sat_params, 'src_pk')},
-{spc}{format_metadata_lookup(eff_sat_params, 'as_of_dates_table')},
-{spc}{format_metadata_lookup(eff_sat_params, 'satellites')},
-{spc}{format_metadata_lookup(eff_sat_params, 'stage_tables_ldts')},
-{spc}{format_metadata_lookup(eff_sat_params, 'src_ldts')},
-{spc}{format_metadata_lookup(eff_sat_params, 'source_model')}
+{spc}{format_metadata_lookup(pit_params, 'src_pk')},
+{spc}{format_metadata_lookup(pit_params, 'as_of_dates_table')},
+{spc}{format_metadata_lookup(pit_params, 'satellites')},
+{spc}{format_metadata_lookup(pit_params, 'stage_tables_ldts')},
+{spc}{format_metadata_lookup(pit_params, 'src_ldts')},
+{spc}{format_metadata_lookup(pit_params, 'source_model')}
 )"""
     return f"""{render_left}{code}{render_right}"""
 
 
-def dbtvault_template_bridge(eff_sat_params: types.XtsParams) -> str:
+def dbtvault_template_bridge(bridge_params: types.BridgeParams) -> str:
     code = f"""dbtvault.bridge(
-{spc}{format_metadata_lookup(eff_sat_params, 'source_model')},
-{spc}{format_metadata_lookup(eff_sat_params, 'src_pk')},
-{spc}{format_metadata_lookup(eff_sat_params, 'src_ldts')},
-{spc}{format_metadata_lookup(eff_sat_params, 'bridge_walk')},
-{spc}{format_metadata_lookup(eff_sat_params, 'as_of_dates_table')},
-{spc}{format_metadata_lookup(eff_sat_params, 'stage_tables_ldts')}
+{spc}{format_metadata_lookup(bridge_params, 'source_model')},
+{spc}{format_metadata_lookup(bridge_params, 'src_pk')},
+{spc}{format_metadata_lookup(bridge_params, 'src_ldts')},
+{spc}{format_metadata_lookup(bridge_params, 'bridge_walk')},
+{spc}{format_metadata_lookup(bridge_params, 'as_of_dates_table')},
+{spc}{format_metadata_lookup(bridge_params, 'stage_tables_ldts')}
 )"""
     return f"""{render_left}{code}{render_right}"""
 

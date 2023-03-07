@@ -23,9 +23,9 @@ class TestParser(unittest.TestCase):
 
     def test_get_dbt_project_config(self):
         data_path = TEST_ROOT / "data/projects"
-        want = types.ProjectConfig(model_dirs=["models"])
+        want = types.ProjectConfig(model_dirs=["models"], target_dir="target")
         self.assertEqual(
-            want, params.get_dbt_project_config(data_path / "dummy_project")
+            want, params.get_dbt_project_config(data_path / "dummy_project", None)
         )
         with self.assertRaises(exceptions.ProjectNotConfiguredError):
-            params.get_dbt_project_config(data_path / "broken_project")
+            params.get_dbt_project_config(data_path / "broken_project", None)

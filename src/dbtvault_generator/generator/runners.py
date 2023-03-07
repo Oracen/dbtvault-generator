@@ -21,16 +21,13 @@ class BaseGenerator(abc.ABC):
     def run(self, args_dict: types.Mapping):
         pass
 
-
-class SqlGenerator(BaseGenerator):
-    def run(
-        self,
-        args_dict: types.Mapping,
-    ) -> None:
-        project_path: Path = args_dict.get("project_dir", Path("."))
-        params.arg_handler(args_dict.pop("args", None))
-        params.cli_passthrough_arg_parser(args_dict)
-        project_config = self.get_project_config_fn(project_path)
+    def process_config(self, args_dict: types.Mapping):
+        project_path: Path = Path(args_dict.get("project_dir", "."))
+        args = params.arg_handler(args_dict.pop("args", None))
+        cli_args = params.cli_passthrough_arg_parser(args_dict)
+        project_config = self.get_project_config_fn(
+            project_path, args_dict.get("target", None)
+        )
 
         # Load in configs, starting  with root config
         configs = self.find_dbtvault_gen_config_fn(project_path, "", False)
@@ -43,7 +40,18 @@ class SqlGenerator(BaseGenerator):
             )
         # Run through all the files and builds the sql as appropriate
         models = params.process_config_collection(configs)
-        for model_config in models:
+        return types.RunnerConfig(
+            project_dir=project_path, models=models, args=args, cli_args=cli_args
+        )
+
+
+class SqlGenerator(BaseGenerator):
+    def run(
+        self,
+        args_dict: types.Mapping,
+    ) -> None:
+        runner_config = self.process_config(args_dict)
+        for model_config in runner_config.models:
             templater = templater_factory(model_config.model_type)
             template_string = templater(model_config)
             # Allow for prefixing to be dynamic
@@ -53,6 +61,29 @@ class SqlGenerator(BaseGenerator):
                 else ""
             )
             name = f"{prefix}{model_config.name}.{literals.SQL_FILE_EXT}"
-            file_location = Path(project_config / model_config.options.target_path)
-            file_location.mkdir(parents=True, exist_ok=True)
-            file_io.write_text(file_location / name, template_string)
+            file_loc = runner_config.project_dir / model_config.options.target_path
+
+            file_loc.mkdir(parents=True, exist_ok=True)
+            file_io.write_text(file_loc / name, template_string)
+
+
+class DocsGenerator(BaseGenerator):
+    def run(
+        self,
+        args_dict: types.Mapping,
+    ) -> None:
+        runner_config = self.process_config(args_dict)
+        for model_config in runner_config.models:
+            templater = templater_factory(model_config.model_type)
+            template_string = templater(model_config)
+            # Allow for prefixing to be dynamic
+            prefix = (
+                model_config.options.prefixes[model_config.model_type]
+                if model_config.options.use_prefix
+                else ""
+            )
+            name = f"{prefix}{model_config.name}.{literals.SQL_FILE_EXT}"
+            file_loc = runner_config.project_dir / model_config.options.target_path
+
+            file_loc.mkdir(parents=True, exist_ok=True)
+            file_io.write_text(file_loc / name, template_string)
