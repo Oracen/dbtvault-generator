@@ -1,6 +1,6 @@
 from copy import deepcopy
 from pathlib import Path
-from typing import Any, Dict, List, Optional, Set, get_args
+from typing import Any, Dict, List, Optional, Set, Union, get_args
 
 import pydantic
 import yaml
@@ -214,7 +214,22 @@ def process_config_collection(configs: Dict[str, types.Mapping]):
     return models
 
 
-def get_model_path(project_dir: Path, params: types.DBTVGBaseModelParams):
-    pass
-    # name = params.name
-    # if params.options.use_prefix:
+def check_model_names(arg_dict: Dict[str, Any]) -> Union[List[str], None]:
+    model_names = arg_dict.get("model_names", None)
+    if model_names is None:
+        return
+
+    # Validate input
+    failed = False
+    if not isinstance(model_names, list):
+        failed = True
+    elif len(model_names) == 0:
+        failed = True
+    elif not isinstance(next(model_names), str):
+        failed = True
+    if failed:
+        raise exceptions.ArgParseError(
+            "Argument model_names must be a non-empty list of strings"
+        )
+
+    return model_names

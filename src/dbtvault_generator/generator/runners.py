@@ -3,7 +3,7 @@ from pathlib import Path
 
 from dbtvault_generator.constants import literals, types
 from dbtvault_generator.files import file_io
-from dbtvault_generator.parsers import params
+from dbtvault_generator.parsers import fmt_string, params
 from dbtvault_generator.parsers.templaters import templater_factory
 
 
@@ -54,13 +54,8 @@ class SqlGenerator(BaseGenerator):
         for model_config in runner_config.models:
             templater = templater_factory(model_config.model_type)
             template_string = templater(model_config)
-            # Allow for prefixing to be dynamic
-            prefix = (
-                model_config.options.prefixes[model_config.model_type]
-                if model_config.options.use_prefix
-                else ""
-            )
-            name = f"{prefix}{model_config.name}.{literals.SQL_FILE_EXT}"
+
+            name = f"{fmt_string.format_name(model_config)}.{literals.SQL_FILE_EXT}"
             file_loc = runner_config.project_dir / model_config.options.target_path
 
             file_loc.mkdir(parents=True, exist_ok=True)
@@ -73,17 +68,9 @@ class DocsGenerator(BaseGenerator):
         args_dict: types.Mapping,
     ) -> None:
         runner_config = self.process_config(args_dict)
-        for model_config in runner_config.models:
-            templater = templater_factory(model_config.model_type)
-            template_string = templater(model_config)
-            # Allow for prefixing to be dynamic
-            prefix = (
-                model_config.options.prefixes[model_config.model_type]
-                if model_config.options.use_prefix
-                else ""
-            )
-            name = f"{prefix}{model_config.name}.{literals.SQL_FILE_EXT}"
-            file_loc = runner_config.project_dir / model_config.options.target_path
-
-            file_loc.mkdir(parents=True, exist_ok=True)
-            file_io.write_text(file_loc / name, template_string)
+        model_names = params.check_model_names(runner_config.args)
+        if model_names is None:
+            # Default to full generation
+            model_names = [
+                fmt_string.format_name(item) for item in runner_config.models
+            ]
