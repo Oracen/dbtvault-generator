@@ -26,6 +26,7 @@ dependencies = [
     "pydantic>=1.10.5",
     "typer[all]>=0.7.0",
     "schema>=0.7.5",
+    "dbt-artifacts-parser>=0.2.4",
 ]
 requires-python = ">=3.9"
 readme = "README.md"

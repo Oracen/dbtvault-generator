@@ -201,10 +201,41 @@ class RunnerConfig(pydantic.BaseModel):
     project_dir: Path
     models: List[DBTVGBaseModelParams]
     cli_args: List[str]
+    target_folder: str
+
+
+class CatalogModelColumn(pydantic.BaseModel):
+    name: str
+    dtype: Optional[str]
+
+
+class CatalogModel(pydantic.BaseModel):
+    name: str
+    columns: Dict[str, CatalogModelColumn]
+
+
+class DbtCatalog(pydantic.BaseModel):
+    models: Dict[str, CatalogModel]
+
+
+class DocgenBaseColumn(pydantic.BaseModel):
+    name: str
+    description: str
+
+
+class DocgenBaseTable(pydantic.BaseModel):
+    name: str
+    description: str
+    columns: List[DocgenBaseColumn]
+
+
+class DocgenModels(pydantic.BaseModel):
+    version: int
+    models: List[DocgenBaseTable]
 
 
 PipeOutput = Tuple[str, str, bool]
-ShellOperationFn = Callable[[List[str]], PipeOutput]
+ShellOperationFn = Callable[[List[str]], str]
 GetProjectConfigFn = Callable[[Path, Optional[str]], ProjectConfig]
 FindDbtvaultGenConfig = Callable[[Path, str, bool], Dict[str, Mapping]]
 ReaderFunction = Callable[[Path, Type[Exception], str], Mapping]

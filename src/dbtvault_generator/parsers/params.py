@@ -149,10 +149,12 @@ def parse_model_definition(
     defaults: types.Mapping,
     config_path: str,
 ) -> types.DBTVGBaseModelParams:
+    # Get the options for the group
     options = model_dict.get(literals.DBTVG_OPTIONS_KEY, {})
     model_dict[literals.DBTVG_OPTIONS_KEY] = build_model_config(
         defaults, options, config_path
     )
+    # Update default location - this is where it is found, not where it's going
     model_dict[literals.DBTVG_LOCATION_KEY] = config_path
 
     name = model_dict.get(literals.DBTVG_NAME_KEY, "--NAME MISSING--")
@@ -230,7 +232,7 @@ def check_model_names(arg_string: Optional[str] = None) -> List[str]:
     if model_names is None:
         return []
 
-    # Validate input
+    # Validate input is a list of strings
     failed = False
     if not isinstance(model_names, list):  # type: ignore
         failed = True
@@ -247,9 +249,7 @@ def check_model_names(arg_string: Optional[str] = None) -> List[str]:
 
 
 def build_exec_docgen_command(cli_args: List[str], model_names: List[str]) -> List[str]:
-    args_string: str = yaml.dump(
-        {"model_namessss": model_names}, default_flow_style=True
-    )
+    args_string: str = yaml.dump({"model_names": model_names}, default_flow_style=True)
     args_string = args_string.replace("\n", "")
     base_commands: List[str] = ["dbt", "run-operation", "generate_model_yaml"]
     args = ["--args", args_string]

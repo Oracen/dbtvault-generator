@@ -35,11 +35,16 @@ class BaseGenerator(abc.ABC):
             project_dir=project_path,
             models=models,
             cli_args=cli_args,
+            target_folder=project_config.target_dir,
         )
 
 
 class SqlGenerator(BaseGenerator):
-    def run(self, project_path: Path) -> None:
+    def run(
+        self,
+        project_path: Path,
+        overwrite: bool = False,
+    ) -> None:
         runner_config = self.process_config(project_path, None)
         for model_config in runner_config.models:
             templater = templater_factory(model_config.model_type)
@@ -49,6 +54,10 @@ class SqlGenerator(BaseGenerator):
             file_loc = runner_config.project_dir / model_config.options.target_path
 
             file_loc.mkdir(parents=True, exist_ok=True)
+            filepath = file_loc / name
+            if filepath.is_file() and not overwrite:
+                continue
+                # Don't overwrite existing
             file_io.write_text(file_loc / name, template_string)
 
 
@@ -67,10 +76,12 @@ class DocsGenerator(BaseGenerator):
         project_path: Path,
         target_folder: Optional[str] = None,
         args: Optional[str] = None,
+        overwrite: bool = False,
     ) -> None:
-        print("HI")
         runner_config = self.process_config(project_path, target_folder)
         model_names = params.check_model_names(args)
+        target_dir = runner_config.project_dir / runner_config.target_folder
+        _ = file_io.load_catalog(target_dir)
         if len(model_names) == 0:
             # Default to full generation
             model_names = [
@@ -80,5 +91,7 @@ class DocsGenerator(BaseGenerator):
         command_list = params.build_exec_docgen_command(
             runner_config.cli_args, model_names
         )
-        print(command_list)
-        print(self.subproc_runner_fn(command_list))
+        output_str = fmt_string.clean_generate_model_yaml(
+            self.subproc_runner_fn(command_list)
+        )
+        _ = file_io.load_base_doc_object(output_str)

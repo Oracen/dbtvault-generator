@@ -1,4 +1,4 @@
-from dbtvault_generator.constants import types
+from dbtvault_generator.constants import exceptions, types
 
 
 def format_name(model_config: types.DBTVGBaseModelParams) -> str:
@@ -9,3 +9,12 @@ def format_name(model_config: types.DBTVGBaseModelParams) -> str:
         else ""
     )
     return f"{prefix}{model_config.name}"
+
+
+def clean_generate_model_yaml(macro_output: str) -> str:
+    target_string = "version:"
+    if " " + target_string not in macro_output:
+        msg = "Unknown format returned from subprocess call, could not format: "
+        raise exceptions.SubprocessFailed(msg + str(macro_output))
+    # Cut off the printout and extract the yaml component
+    return target_string + macro_output.split(target_string, 1)[1]

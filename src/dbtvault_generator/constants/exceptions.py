@@ -16,3 +16,11 @@ class NoDbtInstallError(ImportError):
 
 class NoDbtvGenConfigFound(ValueError):
     pass
+
+
+class SubprocessFailed(ValueError):
+    pass
+
+
+class DbtArtifactError(TypeError):
+    pass

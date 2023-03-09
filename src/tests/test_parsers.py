@@ -2,7 +2,8 @@ import unittest
 from pathlib import Path
 
 from dbtvault_generator.constants import exceptions, types
-from dbtvault_generator.parsers import params
+from dbtvault_generator.files import file_io
+from dbtvault_generator.parsers import fmt_string, params
 
 TEST_ROOT = Path(__file__).parent
 
@@ -28,3 +29,14 @@ class TestParser(unittest.TestCase):
         )
         with self.assertRaises(exceptions.ProjectNotConfiguredError):
             params.get_dbt_project_config(data_path / "broken_project", None)
+
+    def test_base_doc_parsing(self):
+        data_path = TEST_ROOT / "data/text"
+
+        with open(data_path / "doc_gen_output.txt", "r") as stream:
+            data = stream.read().replace("\\n", "\n")
+        cleaned = fmt_string.clean_generate_model_yaml(data)
+        output = file_io.load_base_doc_object(cleaned)
+        self.assertTrue("version" in output.dict())
+        self.assertTrue("models" in output.dict())
+        self.assertEqual(len(output.models), 3)

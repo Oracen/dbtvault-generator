@@ -10,6 +10,8 @@ DBTVG_NAME_KEY = "name"
 
 DEFAULT_MODELS = ["models"]
 DEFAULT_TARGET = "target"  # this is subject to change in 1.5
+DEFAULT_NAME_MANIFEST = "manifest.json"
+DEFAULT_NAME_CATALOG = "catalog.json"
 
 
 # this seems dumb, but I may need to generate into fake file file types and let
