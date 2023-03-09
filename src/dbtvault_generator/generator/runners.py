@@ -1,6 +1,7 @@
 import abc
+from collections import defaultdict
 from pathlib import Path
-from typing import Optional
+from typing import DefaultDict, List, Optional, Tuple
 
 from dbtvault_generator.constants import literals, types
 from dbtvault_generator.files import file_io
@@ -81,17 +82,29 @@ class DocsGenerator(BaseGenerator):
         runner_config = self.process_config(project_path, target_folder)
         model_names = params.check_model_names(args)
         target_dir = runner_config.project_dir / runner_config.target_folder
-        _ = file_io.load_catalog(target_dir)
-        if len(model_names) == 0:
-            # Default to full generation
-            model_names = [
-                fmt_string.format_name(item) for item in runner_config.models
-            ]
+        catalog_data = file_io.load_catalog(target_dir)
+        model_list = (
+            runner_config.models
+            if len(model_names) == 0
+            else list(filter(lambda x: x.name in model_names, runner_config.models))
+        )
+        model_namepairs: List[Tuple[str, types.DBTVGBaseModelParams]] = [
+            (fmt_string.format_name(item), item) for item in model_list
+        ]
+        # command_list = params.build_exec_docgen_command(
+        #     runner_config.cli_args, model_names
+        # )
+        # output_str = fmt_string.clean_generate_model_yaml(
+        #     self.subproc_runner_fn(command_list)
+        # )
 
-        command_list = params.build_exec_docgen_command(
-            runner_config.cli_args, model_names
-        )
-        output_str = fmt_string.clean_generate_model_yaml(
-            self.subproc_runner_fn(command_list)
-        )
-        _ = file_io.load_base_doc_object(output_str)
+        # base_doc_data = params.load_base_doc_object(output_str)
+        relationship_data = params.find_model_relationships(model_namepairs)
+        model_locations: DefaultDict[str, List[types.Mapping]] = defaultdict(list)
+        for name, model in model_namepairs:
+            relationship = relationship_data[name]
+            catalog_model = catalog_data.models[name]
+            data_entry = params.build_relationship_entry(
+                model, catalog_model, relationship
+            )
+            model_locations[model.options.target_path].append(data_entry)

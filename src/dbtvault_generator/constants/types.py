@@ -218,9 +218,21 @@ class DbtCatalog(pydantic.BaseModel):
     models: Dict[str, CatalogModel]
 
 
+class RelationshipExtract(pydantic.BaseModel):
+    primary_key: Optional[str] = None
+    foreign_keys: List[str] = []
+
+
+class DocgenForeignKey(pydantic.BaseModel):
+    table: str
+    field: str
+
+
 class DocgenBaseColumn(pydantic.BaseModel):
     name: str
     description: str
+    is_primary_key: bool
+    foreign_key: Optional[DocgenForeignKey]
 
 
 class DocgenBaseTable(pydantic.BaseModel):

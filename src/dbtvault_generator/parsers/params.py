@@ -1,6 +1,8 @@
+import abc
+import warnings
 from copy import deepcopy
 from pathlib import Path
-from typing import Any, Dict, List, Optional, Set, get_args
+from typing import Any, Dict, List, Optional, Set, Tuple, Union, get_args
 
 import pydantic
 import yaml
@@ -254,3 +256,227 @@ def build_exec_docgen_command(cli_args: List[str], model_names: List[str]) -> Li
     base_commands: List[str] = ["dbt", "run-operation", "generate_model_yaml"]
     args = ["--args", args_string]
     return base_commands + cli_args + args
+
+
+def coerce_yaml_list_to_str(yaml_list: types.YamlStringList) -> str:
+    if isinstance(yaml_list, str):
+        return yaml_list
+    else:
+        first_elem = next(iter(yaml_list))
+        warnings.warn(f"Yaml list {str(yaml_list)} will be coerced to {first_elem}")
+        return first_elem
+
+
+def coerce_yaml_list_to_list(yaml_list: types.YamlStringList) -> List[str]:
+    if isinstance(yaml_list, str):
+        return [yaml_list]
+    return yaml_list
+
+
+class BaseModelRelationshipBuild(abc.ABC):
+    @abc.abstractmethod
+    def __call__(self, config: Any) -> types.RelationshipExtract:
+        pass
+
+
+class HubModelRelationBuild(BaseModelRelationshipBuild):
+    def __call__(self, config: types.ModelHubParams) -> types.RelationshipExtract:
+        relationships = types.RelationshipExtract(
+            primary_key=coerce_yaml_list_to_str(config.dbtvault_arguments.src_pk),
+        )
+        return relationships
+
+
+class LinkModelRelationBuild(BaseModelRelationshipBuild):
+    def __call__(self, config: types.ModelLinkParams) -> types.RelationshipExtract:
+        relationships = types.RelationshipExtract(
+            primary_key=coerce_yaml_list_to_str(config.dbtvault_arguments.src_pk),
+            foreign_keys=config.dbtvault_arguments.src_fk,
+        )
+        return relationships
+
+
+class TLinkModelRelationBuild(BaseModelRelationshipBuild):
+    def __call__(self, config: types.ModelTLinkParams) -> types.RelationshipExtract:
+        relationships = types.RelationshipExtract(
+            primary_key=coerce_yaml_list_to_str(config.dbtvault_arguments.src_pk),
+            foreign_keys=config.dbtvault_arguments.src_fk,
+        )
+        return relationships
+
+
+class SatModelRelationBuild(BaseModelRelationshipBuild):
+    def __call__(self, config: types.ModelSatParams) -> types.RelationshipExtract:
+        relationships = types.RelationshipExtract(
+            foreign_keys=[config.dbtvault_arguments.src_pk],
+        )
+        return relationships
+
+
+class EffSatModelRelationBuild(BaseModelRelationshipBuild):
+    def __call__(self, config: types.ModelEffSatParams) -> types.RelationshipExtract:
+        relationships = types.RelationshipExtract(
+            foreign_keys=[
+                coerce_yaml_list_to_str(config.dbtvault_arguments.src_pk),
+                coerce_yaml_list_to_str(config.dbtvault_arguments.src_dfk),
+                coerce_yaml_list_to_str(config.dbtvault_arguments.src_sfk),
+            ],
+        )
+        return relationships
+
+
+class MaSatModelRelationBuild(BaseModelRelationshipBuild):
+    def __call__(self, config: types.ModelMaSatParams) -> types.RelationshipExtract:
+        relationships = types.RelationshipExtract(
+            foreign_keys=[config.dbtvault_arguments.src_pk]
+            + coerce_yaml_list_to_list(config.dbtvault_arguments.src_cdk),
+        )
+        return relationships
+
+
+class XtsModelRelationBuild(BaseModelRelationshipBuild):
+    def __call__(self, config: types.ModelXtsParams) -> types.RelationshipExtract:
+        relationships = types.RelationshipExtract(
+            foreign_keys=coerce_yaml_list_to_list(config.dbtvault_arguments.src_pk),
+        )
+        return relationships
+
+
+class PitModelRelationBuild(BaseModelRelationshipBuild):
+    def __call__(self, config: types.ModelPitParams) -> types.RelationshipExtract:
+        satellite_keys = [
+            value.pk["PK"] for value in config.dbtvault_arguments.satellites.values()
+        ]
+        relationships = types.RelationshipExtract(
+            primary_key=config.dbtvault_arguments.src_pk,
+            foreign_keys=satellite_keys,
+        )
+        return relationships
+
+
+class BridgeModelRelationBuild(BaseModelRelationshipBuild):
+    def __call__(self, config: types.ModelHubParams) -> types.RelationshipExtract:
+        # TODO: Don't be a lazy bastard, come back to this
+        warnings.warn("Bridge walks currently hurts my head, I am passing")
+        return types.RelationshipExtract()
+
+
+def model_relations_factory(
+    model_type: types.DBTVaultModel,
+) -> BaseModelRelationshipBuild:
+    if model_type == "hub":
+        return HubModelRelationBuild()
+    elif model_type == "link":
+        return LinkModelRelationBuild()
+    elif model_type == "t_link":
+        return TLinkModelRelationBuild()
+    elif model_type == "sat":
+        return SatModelRelationBuild()
+    elif model_type == "eff_sat":
+        return EffSatModelRelationBuild()
+    elif model_type == "ma_sat":
+        return MaSatModelRelationBuild()
+    elif model_type == "xts":
+        return XtsModelRelationBuild()
+    elif model_type == "pit":
+        return PitModelRelationBuild()
+    elif model_type == "bridge":
+        return BridgeModelRelationBuild()
+    else:
+        raise ValueError(
+            f"Model type {model_type} passed into relationship builder factory"
+        )
+
+
+def build_primary_keys(
+    models: List[Tuple[str, types.DBTVGBaseModelParams]]
+) -> Dict[str, str]:
+    """Extract all hub primary keys as the foundation of relationship matching"""
+    primary_keys: Dict[str, str] = {}
+    for name, model in models:
+        primary_key = None
+        if model.model_type in ["hub", "link", "t_link"]:
+            relation_extract = model_relations_factory(model.model_type)
+            primary_key = relation_extract(model).primary_key
+
+        if primary_key is None:
+            continue
+        if primary_key in primary_keys:
+            warnings.warn(
+                f"Duplicate hub primary key name {primary_key} found, "
+                "automatic generation will be inconsistent"
+            )
+        else:
+            primary_keys[primary_key] = name
+    return primary_keys
+
+
+def match_foreign_keys(
+    models: List[Tuple[str, types.DBTVGBaseModelParams]],
+    primary_key_dict: Dict[str, str],
+) -> Dict[str, Dict[str, str]]:
+    foreign_key_match: Dict[str, Dict[str, str]] = {}
+    for name, model in models:
+        foreign_key_match[name] = {}
+        relation_extract = model_relations_factory(model.model_type)
+        for item in relation_extract(model).foreign_keys:
+            if item in primary_key_dict:
+                # Current table, shared key denoting rel'p, primary table
+                foreign_key_match[name] = {item: primary_key_dict[item]}
+
+    return foreign_key_match
+
+
+def find_model_relationships(
+    models: List[Tuple[str, types.DBTVGBaseModelParams]]
+) -> Dict[str, Dict[str, str]]:
+    """Use greedy matching to find relationships between primary or foreign keys"""
+    primary_keys = build_primary_keys(models)
+    return match_foreign_keys(models, primary_keys)
+
+
+def primary_key_test() -> List[str]:
+    return ["unique", "not_null"]
+
+
+def foreign_key_test(pk_table: str, column_name: str) -> List[types.Mapping]:
+    """Designs a check that will never fire so foreign keys can be inferred"""
+    non_alert = {"config": {"where": "1 != 1"}}
+    fk_check = {
+        "relationships": {
+            "to": f"ref('{pk_table}')",
+            "field": column_name,
+            "config": non_alert,
+        }
+    }
+    return [fk_check]
+
+
+def build_relationship_entry(
+    model: types.DBTVGBaseModelParams,
+    catalog_model: types.CatalogModel,
+    relationship_record: Dict[str, str],
+) -> types.Mapping:
+    primary_key = model_relations_factory(model.model_type)(model).primary_key
+    output: types.Mapping = {
+        "name": catalog_model.name,
+        "description": "",
+    }
+    column_holder: List[types.Mapping] = []
+    for name, item in catalog_model.columns.items():
+        test_holder: List[Union[types.Mapping, str]] = []
+        column: types.Mapping = {
+            "name": name,
+            "description": "",
+            "data_type": item.dtype,
+        }
+        if name == primary_key:
+            test_holder.extend(primary_key_test())
+        elif name in relationship_record:
+            test_holder.extend(foreign_key_test(relationship_record[name], name))
+        if len(test_holder) > 0:
+            column["tests"] = test_holder
+        column_holder.append(column)
+
+    output["columns"] = column_holder
+    return output

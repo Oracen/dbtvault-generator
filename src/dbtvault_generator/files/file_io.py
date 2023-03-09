@@ -25,16 +25,6 @@ def write_text(filepath: Union[Path, str], payload: str):
         buffer.write(payload)
 
 
-def load_base_doc_object(yaml_output: str) -> types.DocgenModels:
-    try:
-        output = yaml.safe_load(yaml_output)
-    except ParserError:
-        raise exceptions.SubprocessFailed(
-            f"Subprocess returned malformed yaml: {yaml_output}"
-        )
-    return types.DocgenModels(**output)
-
-
 """
 DEVNOTE:
 
