@@ -1,4 +1,5 @@
 import abc
+from copy import deepcopy
 from typing import Any, get_args
 
 import yaml
@@ -14,6 +15,12 @@ render_right = "  }}"
 
 
 def inject_yaml_metadata(dbtvault_parameters: types.Mapping) -> str:
+    dbtvault_parameters = deepcopy(dbtvault_parameters)
+    param_iterator = list(dbtvault_parameters.items())
+    for key, value in param_iterator:
+        if value is None:
+            dbtvault_parameters.pop(key)
+
     yaml_string = yaml.dump(
         dbtvault_parameters, default_flow_style=False, sort_keys=False
     )

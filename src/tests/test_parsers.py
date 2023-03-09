@@ -1,5 +1,5 @@
 import unittest
-from pathlib import Path, PosixPath
+from pathlib import Path
 
 from dbtvault_generator.constants import exceptions, types
 from dbtvault_generator.parsers import params
@@ -17,9 +17,8 @@ class TestParser(unittest.TestCase):
             params.arg_handler(bad_yml_str)
 
     def test_cli_passthough_arg_parser(self):
-        want = ["--kebab-case-arg", "value", "--path", "path/to/file"]
-        test_case = {"kebab_case_arg": "value", "path": PosixPath("path/to/file")}
-        self.assertEqual(want, params.cli_passthrough_arg_parser(test_case))
+        want = ["--project-dir", str(Path("path/to/file").absolute())]
+        self.assertEqual(want, params.cli_passthrough_arg_parser(Path("path/to/file")))
 
     def test_get_dbt_project_config(self):
         data_path = TEST_ROOT / "data/projects"

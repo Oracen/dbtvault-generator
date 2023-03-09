@@ -1,4 +1,9 @@
 [tool.pdm]
+[tool.pdm.build]
+excludes=[
+    "src/tests"
+]
+
 [tool.pdm.dev-dependencies]
 dev = [
     "mypy>=1.0.1",
@@ -18,7 +23,6 @@ version = "0.1.0"
 description = "A little util to help you generate DBTVault SQL files from metadata, while we wait for DBTLabs to add meta to the execution context"
 authors = [{ name = "Alex Stenlake", email = "alex.stenlake@gmail.com" }]
 dependencies = [
-    "dbt-core>1.0.0",
     "pydantic>=1.10.5",
     "typer[all]>=0.7.0",
     "schema>=0.7.5",

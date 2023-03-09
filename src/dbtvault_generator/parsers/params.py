@@ -1,6 +1,6 @@
 from copy import deepcopy
 from pathlib import Path
-from typing import Any, Dict, List, Optional, Set, Union, get_args
+from typing import Any, Dict, List, Optional, Set, get_args
 
 import pydantic
 import yaml
@@ -43,13 +43,12 @@ def reformat_arg_key(string: str) -> str:
     return f"--{string_kebab}"
 
 
-def cli_passthrough_arg_parser(args_dict: types.Mapping) -> List[str]:
-    args_list: List[str] = []
-    # Convert kv pairs to string list so they can be injected in later
-    for key, value in args_dict.items():
-        if value is None:
-            continue
-        args_list.extend([reformat_arg_key(key), convert_to_string(value)])
+def cli_passthrough_arg_parser(
+    project_dir: Path, target_dir: Optional[str] = None
+) -> List[str]:
+    args_list: List[str] = ["--project-dir", str(project_dir.absolute())]
+    if target_dir is not None:
+        args_list += ["--target-path", target_dir]
 
     return args_list
 
@@ -82,7 +81,8 @@ def get_dbt_project_config(
         "The file dbt_project.yml is corrupted and cannot be read, "
         "please fix before continuing",
     )
-    model_dirs: List[str] = dbt_project.get("source-paths", literals.DEFAULT_MODELS)
+
+    model_dirs: List[str] = dbt_project.get("source-paths", [])
     if cli_target_dir is None:
         target_dir: str = dbt_project.get("target-path", literals.DEFAULT_TARGET)
     else:
@@ -156,7 +156,7 @@ def parse_model_definition(
     error_prefix = f"The param object at location {config_path} with name {name} has"
 
     model_type = model_dict.get(literals.DBTVG_MODEL_TYPE_KEY, None)
-    if model_type not in get_args(types.DBTVaultModel):
+    if model_type not in get_args(types.DBTVaultModel) or model_type is None:
         raise exceptions.DBTVaultConfigInvalidError(
             f"{error_prefix} has invalid type {str(model_type)}"
         )
@@ -214,18 +214,21 @@ def process_config_collection(configs: Dict[str, types.Mapping]):
     return models
 
 
-def check_model_names(arg_dict: Dict[str, Any]) -> Union[List[str], None]:
-    model_names = arg_dict.get("model_names", None)
+def check_model_names(arg_string: Optional[str] = None) -> List[str]:
+    if arg_string is None:
+        return []
+    arg_dict = yaml.safe_load(arg_string)
+    model_names: Optional[List[str]] = arg_dict.get("model_names", None)
     if model_names is None:
-        return
+        return []
 
     # Validate input
     failed = False
-    if not isinstance(model_names, list):
+    if not isinstance(model_names, list):  # type: ignore
         failed = True
     elif len(model_names) == 0:
         failed = True
-    elif not isinstance(next(model_names), str):
+    elif not isinstance(model_names[0], str):  # type: ignore
         failed = True
     if failed:
         raise exceptions.ArgParseError(
@@ -233,3 +236,13 @@ def check_model_names(arg_dict: Dict[str, Any]) -> Union[List[str], None]:
         )
 
     return model_names
+
+
+def build_exec_docgen_command(cli_args: List[str], model_names: List[str]) -> List[str]:
+    args_string: str = yaml.dump(
+        {"model_namessss": model_names}, default_flow_style=True
+    )
+    args_string = args_string.replace("\n", "")
+    base_commands: List[str] = ["dbt", "run-operation", "generate_model_yaml"]
+    args = ["--args", args_string]
+    return base_commands + cli_args + args

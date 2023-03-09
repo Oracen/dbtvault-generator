@@ -12,6 +12,7 @@ Mapping = Dict[str, Any]
 
 class ProjectConfig(pydantic.BaseModel):
     model_dirs: List[str]
+    target_dir: str
 
 
 class DBTVGTablePrefixes(pydantic.BaseModel):
@@ -199,12 +200,11 @@ class ModelBridgeParams(DBTVGBaseModelParams):
 class RunnerConfig(pydantic.BaseModel):
     project_dir: Path
     models: List[DBTVGBaseModelParams]
-    args: Mapping
     cli_args: List[str]
 
 
 PipeOutput = Tuple[str, str, bool]
-RunOperationFn = Callable[[str, List[str]], PipeOutput]
-GetProjectConfigFn = Callable[[Path, str], ProjectConfig]
+ShellOperationFn = Callable[[List[str]], PipeOutput]
+GetProjectConfigFn = Callable[[Path, Optional[str]], ProjectConfig]
 FindDbtvaultGenConfig = Callable[[Path, str, bool], Dict[str, Mapping]]
 ReaderFunction = Callable[[Path, Type[Exception], str], Mapping]

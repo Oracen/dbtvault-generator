@@ -56,4 +56,5 @@ dbtvault:
           CUSTOMER_NATION_HK:
             - "CUSTOMER_ID"
             - "NATION_ID"
-        ranked_columns: []
+        ranked_columns:
+          another: more

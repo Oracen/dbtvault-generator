@@ -8,3 +8,7 @@ class ProjectNotConfiguredError(TypeError):
 
 class DBTVaultConfigInvalidError(ValueError):
     pass
+
+
+class NoDbtInstallError(ImportError):
+    pass
