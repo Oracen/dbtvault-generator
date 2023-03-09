@@ -12,3 +12,7 @@ class DBTVaultConfigInvalidError(ValueError):
 
 class NoDbtInstallError(ImportError):
     pass
+
+
+class NoDbtvGenConfigFound(ValueError):
+    pass

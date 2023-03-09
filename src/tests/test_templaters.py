@@ -14,6 +14,12 @@ test_models = file_io.read_yml_file(
     "file not found",
 )[literals.DBTVG_CONFIG_KEY][literals.DBTVG_MODELS_KEY]
 
+custom_macro_models = file_io.read_yml_file(
+    data_path / "dbt_generator_config_good.yml",
+    TypeError,
+    "file not found",
+)[literals.DBTVG_CONFIG_KEY][literals.DBTVG_MODELS_KEY]
+
 
 def _search(param_list: List[types.Mapping], key: str) -> types.Mapping:
     options = {
@@ -25,6 +31,15 @@ def _search(param_list: List[types.Mapping], key: str) -> types.Mapping:
 
 
 class TestDbtvaultTemplaters(unittest.TestCase):
+    def test_dbtvault_custom_macro(self):
+        params = _search(test_models, "stage")
+        options = types.DBTVGConfig(custom_macros={"stage": "blah_macro"})
+        args: types.Mapping = {**params, "options": options}
+        stage_model = types.ModelStageParams(**args)
+        templater = templaters.templater_factory(stage_model.model_type)
+        self.assertFalse("none" in templater(stage_model))
+        self.assertTrue("blah_macro" in templater(stage_model))
+
     def test_dbtvault_stage_template(self):
         params = _search(test_models, "stage")
         stage_model = types.ModelStageParams(**params)

@@ -15,7 +15,7 @@ def recursive_merge(base: types.Mapping, updated: types.Mapping) -> types.Mappin
     base = deepcopy(base)  # Base is really our "default config"
     keys: Set[str] = set(base)
     new_keys = set(updated)
-    for key in keys.union(new_keys):
+    for key in keys:
         val: Any = base[key]
         if key in updated:
             if type(val) == dict:
@@ -82,16 +82,19 @@ def get_dbt_project_config(
         "please fix before continuing",
     )
 
-    model_dirs: List[str] = dbt_project.get("source-paths", [])
+    model_dirs: List[str] = dbt_project.get("model-paths", [])
+    # Backwards compatibility
+    model_dirs += dbt_project.get("source-paths", [])
+    if len(model_dirs) == 0:
+        raise exceptions.ProjectNotConfiguredError(
+            "This project contains no model directories, code cannot be generated"
+        )
+
     if cli_target_dir is None:
         target_dir: str = dbt_project.get("target-path", literals.DEFAULT_TARGET)
     else:
         target_dir = cli_target_dir
 
-    if len(model_dirs) == 0:
-        raise exceptions.ProjectNotConfiguredError(
-            "This project contains no model directories, code cannot be generated"
-        )
     return types.ProjectConfig(model_dirs=model_dirs, target_dir=target_dir)
 
 
@@ -175,6 +178,11 @@ def parse_model_definition(
 def process_config_collection(configs: Dict[str, types.Mapping]):
     # Use root config defaults to update all child defaults,
     # else use global defaults
+    if len(configs) == 0:
+        raise exceptions.NoDbtvGenConfigFound(
+            f"No files with the name {literals.DBTVG_YAML_NAME} found in specified "
+            "directory, please check metadata has been correctly specified"
+        )
     cfg: types.Mapping = (
         configs["."].get(literals.DBTVG_DEFAULTS_KEY, {}) if "." in configs else {}
     )

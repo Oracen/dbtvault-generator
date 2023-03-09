@@ -29,14 +29,14 @@ class DBTVGTablePrefixes(pydantic.BaseModel):
 
 
 class DBTVGPrefixes(pydantic.BaseModel):
-    table: DBTVGTablePrefixes
+    table: DBTVGTablePrefixes = DBTVGTablePrefixes()
 
 
 class DBTVGConfig(pydantic.BaseModel):
     use_prefix: bool = False
     target_path: str = ""
-    prefixes: Optional[DBTVGPrefixes] = None
-    custom_macros: Optional[Dict[DBTVaultModel, str]] = None
+    prefixes: DBTVGPrefixes = DBTVGPrefixes()
+    custom_macros: Dict[DBTVaultModel, str] = {}
 
 
 class DBTVGBaseModelParams(pydantic.BaseModel):
