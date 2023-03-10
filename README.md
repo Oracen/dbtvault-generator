@@ -1,10 +1,16 @@
 # dbtvault-generator
-Generate DBT Vault files from yml metadata!
+Generate DbtVault files from external `yml`!
 
 ## Why this exists
 A good dev is a lazy dev. Let's do less work, the right way!
 
-DBTVault is a great tool, but due to quirks of DBT (looking at you, compile context) we can't always have access to the variables we want to use. This tool is a workaround to allow data vault to be generated entirely from yaml files. This means that the source-of-truth now resides in an easily-parseable format, instead of relying on post-facto parsing of SQL (or the information schema) to determine what outputs to expect.
+DBTVault is a great tool, but due to quirks of DBT (looking at you, compile context) we don't necessarily have access additional variables we want to use...at least, without overloading the `meta` or `vars` attributes. See [this issue](https://github.com/Datavault-UK/dbtvault/issues/106) for some details about the limitations and workarounds for the build context. The `dbtvault` docs used `yml` specified inside DBT `sql` files to specify its variables, or otherwise directly set the variables using `jinja`. While this is a workable solution, it's still a workaround to the fact that additional attributes can't be consumed by the `dbt compile` operation.
+
+Using env vars as a stopgap isn't a problem on small projects, but on more complicated codebases it can quickly lead to confusion. It becomes difficult to trace which variables belong where. Further, it hinders the development of other data vault management tools being built on top of DBT. Data Vault is a metadata-heavy method of architecting a data warehouse, as the modelling discipline associated with data vault makes it ripe for automation and abstraction. A standardised modelling output format independent of env vars permits the building of GUI tools to streamline the development and expansion of the data vault.
+
+This tool is a Python-based templating library designed to act around DBT and `dbtvault`, and allow external `dbtvault` parameterisation. It also seeks to leverage the uniformity of data vault specifications to automate certain low-level maintenance tasks such as code documentation. The primary purpose is to generate Data Vault architectures (trhough `dbtvault`), generating SQL and `schema.yml` directly from specialised `dbtvault.yml` files.
+
+Watch this space for a GUI assistance tool in future.
 
 ## Requirements
 - `python>=3.9`
