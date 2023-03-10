@@ -62,13 +62,15 @@ Instantiating the models is currently required to build the docs. In future vers
 
 ### BONUS! Use `dbterd` To Generate ER Diagrams!
 
-The wonderful [Dat Nguyen](https://github.com/datnguye) has built [a cool library called `dbterd`](https://github.com/datnguye/dbterd) that picks up catalog objects and, using the relationship test, creates a `.dbml` file detailing the core relationships within your DBT catalog. The `.dbml` format is an open-source entity-relation spec that can either be consumed directly by a number of SaaS tools or by open-source tools like [DBML Renderer](https://github.com/softwaretechnik-berlin/dbml-renderer). Importantly, `dbterd` uses the `relationships` test to identify foreign key relations...which you will have out of the box.
+The wonderful [Dat Nguyen](https://github.com/datnguye) has built [a cool library called `dbterd`](https://github.com/datnguye/dbterd). `dbterd` picks up DBT's catalog and manifest artifacts and, using the relationship test, creates a `.dbml` file detailing the core relationships within your DBT catalog. The `.dbml` format is an open-source entity-relation spec that can either be consumed directly by a number of SaaS tools or by open-source tools like [DBML Renderer](https://github.com/softwaretechnik-berlin/dbml-renderer).
 
-Go check out his page on Github and leave him a star while you're there.
+Importantly, `dbterd` uses the `relationships` test to identify foreign key relations...which you will have out of the box. You will need to rerun `dbt docs generate` to add in the new relationships, but
+
+Go check out [his page on Github](https://github.com/datnguye/dbterd) for further details...and leave him a star while you're there.
 
 ## Installation Instructions
 
-Pip coming soon
+Pip coming soon, pending CICD
 
 ### Direct From Git
 Many package managers allow installation of Python packages direct from version control repositories. Add this repo directly
