@@ -12,6 +12,7 @@ DEFAULT_MODELS = ["models"]
 DEFAULT_TARGET = "target"  # this is subject to change in 1.5
 DEFAULT_NAME_MANIFEST = "manifest.json"
 DEFAULT_NAME_CATALOG = "catalog.json"
+DEFAULT_NAME_SCHEMA_YAML = "schema.yml"
 
 
 # this seems dumb, but I may need to generate into fake file file types and let

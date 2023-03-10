@@ -20,6 +20,14 @@ def read_yml_file(
     return output
 
 
+def write_yaml_file(
+    filepath: Union[Path, str],
+    data: types.Mapping,
+) -> None:
+    with open(filepath, "w") as stream:
+        yaml.dump(data, stream, sort_keys=False)
+
+
 def write_text(filepath: Union[Path, str], payload: str):
     with open(filepath, "w") as buffer:
         buffer.write(payload)

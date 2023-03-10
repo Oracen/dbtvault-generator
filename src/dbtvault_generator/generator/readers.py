@@ -3,6 +3,7 @@ from typing import Dict, List
 
 from dbtvault_generator.constants import exceptions, literals, types
 from dbtvault_generator.files import search
+from dbtvault_generator.parsers import params
 
 
 class ConfigReader:
@@ -52,3 +53,29 @@ class ExecEnvReader:
             raise exceptions.NoDbtInstallError(
                 "A DBT install was not found in environment"
             )
+
+
+class SchemaMerger:
+    def __init__(
+        self,
+        reader_function: types.ReaderFunction,
+        writer_function: types.WriterFunction,
+    ):
+        self.reader_function = reader_function
+        self.writer_function = writer_function
+
+    def merge_schemas(
+        self, target_path: Path, model_payload: types.Mapping, overwrite: bool
+    ) -> None:
+        # Save and exit, don't need to merge
+        if overwrite or not target_path.is_file():
+            self.writer_function(target_path, model_payload)
+            return
+
+        existing = self.reader_function(
+            target_path,
+            exceptions.DbtArtifactError,
+            f"The existing schema at {str(target_path)} is in an invalid format",
+        )
+        updated_schema = params.recursive_merge(model_payload, existing)
+        self.writer_function(target_path, updated_schema)

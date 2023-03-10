@@ -68,9 +68,11 @@ class DocsGenerator(BaseGenerator):
         get_project_config_fn: types.GetProjectConfigFn,
         find_dbtvault_gen_config_fn: types.FindDbtvaultGenConfig,
         subproc_runner_fn: types.ShellOperationFn,
+        schema_file_merger: types.SchemaMergeFn,
     ):
         super().__init__(get_project_config_fn, find_dbtvault_gen_config_fn)
         self.subproc_runner_fn = subproc_runner_fn
+        self.schema_file_merger = schema_file_merger
 
     def run(
         self,
@@ -108,3 +110,8 @@ class DocsGenerator(BaseGenerator):
                 model, catalog_model, relationship
             )
             model_locations[model.options.target_path].append(data_entry)
+        filename = literals.DEFAULT_NAME_SCHEMA_YAML
+        for location, models in model_locations.items():
+            model_payload = {"version": 2, "models": models}
+            target_file = runner_config.project_dir / location / filename
+            self.schema_file_merger(target_file, model_payload, overwrite)
