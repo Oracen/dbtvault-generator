@@ -91,3 +91,75 @@ git clone https://github.com/Oracen/dbtvault-generator
 cd dbtvault-generator
 pdm build
 ```
+
+## Usage
+
+On command execution, `dbtv-gen` scans your project directory for files named `dbtvault.yml`, containing a root-level key called `dbtvault`. The location of these files specify where any associated models will be generated, unless the target path is overriden. The only special file is an optional `dbtvault.yml` located at the project root. This file's default attributes will be treated as the defaults for the entire project, and so serves as a good place for specifying prefixes etc.
+
+Each `dbtvault.yml` contains 2 keys:
+- `defaults`: the default options for each model. These default options can be overwritten on a per-model basis
+- `models`: the specification for each model to be generated in the parent folder of the current file.
+
+The `defaults` element has the following structure:
+```yaml
+version: 2
+
+dbtvault:
+  defaults:
+    use_prefix: true
+    prefixes:
+      table:
+        stage: stg_
+        hub: hub_
+        link: lnk_
+        t_link: t_lnk_
+        sat: sat_
+        eff_sat: eff_sat_
+        ma_sat: ma_sat_
+        xts: xts_
+        pit: pit_
+        bridge: bridge_
+    custom_macros:
+      stage: custom_staging_macro
+    target_path: ""
+```
+
+- `use_prefix`: indicates whether to prepend the designated string to each table name as the model generates. Defaults to `false`
+- `prefixes`: a mapping of prefixes to use per supported model type. Defaults are shown above, and are aligned with `dbtvault`'s examples
+- `custom_macros`: sometimes the default `dbtvault` macros don't do exactly what you want and a custom macro needs to be substituted. For example, you may want to restrict your data to a small time range in the development environment. If specified, the custom macro will be substituted in for particular model structures. Defaults to `{}` (empty)
+- `target_path`: The location where files will be created. It is advised to not set this on the default settings, but can be overriden on the objects attribute per-model. Defaults to `""` (empty).
+
+The `models` element is a list of `model` elements, each of whic has the following structure:
+```yaml
+version: 2
+
+dbtvault:
+  models:
+    - name: clients
+      model_type: stage
+      options:
+        use_prefix: false
+        target_path: "raw_vault/staging"
+      dbtvault_arguments:
+        include_source_columns: false
+        source_model:
+          main_db: clientData
+        derived_columns:
+          SOURCE: "!1"
+          LOAD_DATETIME: "CRM_INGESTION_TIME"
+        null_columns:
+          LAST_TICKET_DATE: "lastTicketDate"
+        hashed_columns:
+          CLIENT_HASHKEY: "CLIENT_ID"
+          CUSTOMER_NATION_HK:
+            - "CUSTOMER_ID"
+            - "NATION_ID"
+        ranked_columns:
+          one : "two"
+```
+- `name`: specifies the base name of the generated model. If `use_prefix = false`, the generated file will have this name, otherwise it will have the appropriate prefix prepended depending on its type
+- `model_type`: the `dbtvault`-compliant model type. This field drives the yml schema validation, and so should throw errors if the overall model object is incorrectly specified.
+- `options`: this specifies the generation options for the model, and inherits values from the defaults. The choices are the same.
+- `dbtvault_arguments`: Implements the `dbtvault` macro API. Choices depend on the type of model implemented.
+
+For further information on how to specify `dbtvault` models, please see [the DBTVault macros documentation](https://dbtvault.readthedocs.io/en/latest/macros).
