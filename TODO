@@ -1,0 +1,2 @@
+- Fix merge logic to account for comparable list items
+- Review the `dbtvault` macros to check which items in which objects correspond to columns, to reduce the dependency on building
