@@ -12,14 +12,14 @@ jobs:
   release-pypi:
     name: release-pypi
     runs-on: ubuntu-latest
-
     steps:
+      - uses: actions/checkout@v3
       - name: Setup PDM
         uses: pdm-project/setup-pdm@v3
         with:
-          python-version: [3.7, 3.8, 3.9, "3.10", "3.11"] 
-          architecture: x64    
-          prerelease: true    
+          python-version: 3.9
+          architecture: x64
+          prerelease: true
           enable-pep582: true
           cache: true
       - name: Run build
