@@ -1,3 +1,10 @@
+## 0.2.2 (2023-03-11)
+
+### Fix
+
+- rename stub
+- improve commenting and DI
+
 ## 0.2.1 (2023-03-11)
 
 ### Fix
