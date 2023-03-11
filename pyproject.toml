@@ -82,3 +82,6 @@ remove-all-unused-imports = true
 ignore-init-module-imports = true
 remove-unused-variables = true
 ignore-pass-statements = false
+
+[tool.commitizen]
+version = "0.1.0"
