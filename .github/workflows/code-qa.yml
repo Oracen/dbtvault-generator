@@ -27,3 +27,25 @@ jobs:
         run: pdm lint
       - name: Run testing
         run: pdm test
+  test-build:
+    name: test-build
+    needs: run-tests
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Setup PDM
+        uses: pdm-project/setup-pdm@v3
+        with:
+          python-version: 3.9
+          architecture: x64
+          prerelease: true
+          enable-pep582: true
+          cache: true
+      - name: Run build
+        run: pdm build
+      - name: Test Build
+        run: |
+          python3 -m venv fresh_env
+          . fresh_env/bin/activate
+          pip install dist/*.whl
+          dbtv-gen --help

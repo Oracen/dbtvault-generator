@@ -83,9 +83,11 @@ pip install --upgrade dbtvault-generator
 ```
 
 ### Direct From Git
-Many package managers allow installation of Python packages direct from version control repositories. Add this repo directly
+Many package managers allow installation of Python packages direct from version control repositories. Add this repo directly with e.g.
 
-Version tagging coming soon.
+```bash
+poetry add git@github.com:Oracen/dbtvault-generator.git
+```
 
 ### From Source
 For now, using PDM as dependency manager as it seems to be better supported than Poetry. As such, give PDM a try! It's like Yarn for Python, or Poetry with a faster resolver and Poe built in.
