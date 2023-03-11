@@ -22,13 +22,3 @@ jobs:
         run: pdm build
       - name: Publish version
         run: pdm publish --username __token__ --password ${{secrets.PYPI_TOKEN}}
-      - name: Create Release
-        uses: actions/create-release@main
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          tag_name: ${{ env.REVISION }}
-          release_name: ${{ github.ref }}
-          body_path: .changelog.md
-          draft: false
-          prerelease: false
