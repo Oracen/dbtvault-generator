@@ -1,9 +1,9 @@
-name: Bump version and release
+name: Release version
 
 on:
   push:
-    branches:
-      - main
+    tags:
+      - "*.*.*"
 permissions:
   contents: write
 jobs:
@@ -22,31 +22,8 @@ jobs:
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           changelog_increment_filename: body.md
-  test-build:
-    name: test-build
-    needs: bump-version
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v3
-      - name: Setup PDM
-        uses: pdm-project/setup-pdm@v3
-        with:
-          python-version: 3.9
-          architecture: x64
-          prerelease: true
-          enable-pep582: true
-          cache: true
-      - name: Run build
-        run: pdm build
-      - name: Test Build
-        run: |
-          python3 -m venv fresh_env
-          . fresh_env/bin/activate
-          pip install dist/*.whl
-          dbtv-gen --help
   release-pypi:
     name: release-pypi
-    needs: test-build
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
@@ -74,13 +51,13 @@ jobs:
           prerelease: false
   release-github:
     name: release-github
-    needs: test-build
     runs-on: ubuntu-latest
     steps:
       - name: Release Github
         uses: softprops/action-gh-release@v1
         with:
+          release_name: "Release ${{${{ github.ref }}}}"
           body_path: "body.md"
-          tag_name: ${{ env.REVISION }}
+          tag_name: ${{ github.ref }}
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
