@@ -76,7 +76,11 @@ Go check out [his page on Github](https://github.com/datnguye/dbterd) for furthe
 
 ## Installation Instructions
 
-Pip coming soon, pending CICD
+### From Pip
+
+```bash
+pip install --upgrade dbtvault-generator
+```
 
 ### Direct From Git
 Many package managers allow installation of Python packages direct from version control repositories. Add this repo directly
