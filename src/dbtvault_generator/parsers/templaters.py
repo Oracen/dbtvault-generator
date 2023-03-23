@@ -10,15 +10,19 @@ spc = "        "
 endset = "{%- endset -%}"
 set_yaml_metadata = "{%- set yaml_metadata -%}"
 set_metadata_dict = "{% set metadata_dict = fromyaml(yaml_metadata) %}"
-render_left = "{{  "
-render_right = "  }}"
+render_left = "{{"
+render_right = "}}"
 
 
 def clean_jinja_syntax(yaml_string: str) -> str:
-    if "{{" in yaml_string:
+    if render_left in yaml_string:
         # Only do jinja replacement if necessary
-        yaml_string = yaml_string.replace("'{{", "{{").replace("}}'", "}}")
-        yaml_string = yaml_string.replace('"{{', "{{").replace('}}"', "}}")
+        yaml_string = yaml_string.replace(f"'{render_left}", render_left).replace(
+            f"{render_right}'", render_right
+        )
+        yaml_string = yaml_string.replace(f'"{render_left}', render_left).replace(
+            f'{render_right}"', render_right
+        )
     return yaml_string
 
 
@@ -62,7 +66,9 @@ def dbtvault_template_stage(
 {spc}{format_metadata_lookup(stage_params, 'hashed_columns')},
 {spc}{format_metadata_lookup(stage_params, 'ranked_columns')}
 )"""
-    return f"""{render_left}{code}{render_right}"""
+    return f"""{render_left}
+{code}
+{render_right}"""
 
 
 def dbtvault_template_hub(
@@ -205,7 +211,9 @@ def dbtvault_template_bridge(bridge_params: types.BridgeParams, macro: str) -> s
 {spc}{format_metadata_lookup(bridge_params, 'as_of_dates_table')},
 {spc}{format_metadata_lookup(bridge_params, 'stage_tables_ldts')}
 )"""
-    return f"""{render_left}{code}{render_right}"""
+    return f"""{render_left}
+{code}
+{render_right}"""
 
 
 class BaseTemplater(abc.ABC):
