@@ -19,8 +19,6 @@ def recursive_merge(base: types.Mapping, updated: types.Mapping) -> types.Mappin
     keys: Set[str] = set(base)
     new_keys = set(updated)
     for key in keys:
-        # if key == "prefixes":
-        #     print(base[key], updated.get(key, {}))
         val: Any = base[key]
         if key in updated:
             if type(val) == dict:
@@ -28,10 +26,7 @@ def recursive_merge(base: types.Mapping, updated: types.Mapping) -> types.Mappin
                     base[key] = recursive_merge(base[key], updated[key])
             else:
                 base[key] = updated[key]
-        # if key == "prefixes":
-        #     print("AFTER")
-        #     print(base[key], updated.get(key, {}))
-        #     print()
+
     # Only iterate over the keys we have to
     outstanding: Set[str] = new_keys - keys
     for key in outstanding:
