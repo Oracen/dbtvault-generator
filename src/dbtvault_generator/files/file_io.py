@@ -17,19 +17,15 @@ class Loader(yaml.SafeLoader):
     """
 
     def __init__(self, stream: TextIOWrapper):
-        print("** ", stream.name)
         self._root = Path(stream.name).parent
 
         super(Loader, self).__init__(stream)
 
     def include(self, node: yaml.ScalarNode) -> types.Mapping:
-        print(self._root)
         filename = self._root / str(self.construct_scalar(node))
-        print(filename)
-        print(filename.is_file())
         with open(filename, "r") as stream:
-            data = yaml.load(stream, Loader)
-
+            data: types.Mapping = yaml.load(stream, Loader)
+            data.pop("version", None)
             return data
 
 
