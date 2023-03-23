@@ -84,4 +84,4 @@ remove-unused-variables = true
 ignore-pass-statements = false
 
 [tool.commitizen]
-version = "0.2.2"
+version = "0.2.3"

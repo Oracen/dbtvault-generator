@@ -1,3 +1,14 @@
+## 0.2.3 (2023-03-23)
+
+### Fix
+
+- Remove "version" tag from mapped values
+- Allow for !include statements in yml files
+- reduce error logging verbosity
+- templated files have less whitespace
+- properly store recursive merge parameters
+- allow for jinja templates to be unpacked from strings to jinja syntax in files
+
 ## 0.2.2 (2023-03-11)
 
 ### Fix
