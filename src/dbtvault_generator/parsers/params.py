@@ -24,6 +24,9 @@ def recursive_merge(base: types.Mapping, updated: types.Mapping) -> types.Mappin
             if type(val) == dict:
                 if type(updated[key] == dict):
                     base[key] = recursive_merge(base[key], updated[key])
+            elif type(val) == list:
+                # Handle lists by just appending any non-duplicate items
+                base[key] += [item for item in updated[key] if key not in val]
             else:
                 base[key] = updated[key]
 

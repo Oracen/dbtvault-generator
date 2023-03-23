@@ -4,7 +4,6 @@ from pathlib import Path
 from typing import DefaultDict, List, Optional, Tuple
 
 from dbtvault_generator.constants import literals, types
-from dbtvault_generator.files import file_io
 from dbtvault_generator.parsers import fmt_string, params
 from dbtvault_generator.parsers.templaters import templater_factory
 
@@ -41,16 +40,28 @@ class BaseGenerator(abc.ABC):
 
 
 class SqlGenerator(BaseGenerator):
+    def __init__(
+        self,
+        get_project_config_fn: types.GetProjectConfigFn,
+        find_dbtvault_gen_config_fn: types.FindDbtvaultGenConfig,
+        writer_fn: types.StringWriterFunction,
+    ):
+        super().__init__(get_project_config_fn, find_dbtvault_gen_config_fn)
+        self.writer_fn = writer_fn
+
     def run(
         self,
         project_path: Path,
         overwrite: bool = False,
     ) -> None:
+        # Build run config
         runner_config = self.process_config(project_path, None)
         for model_config in runner_config.models:
+            # Build template string
             templater = templater_factory(model_config.model_type)
             template_string = templater(model_config)
 
+            # Format filename for file
             name = f"{fmt_string.format_name(model_config)}.{literals.SQL_FILE_EXT}"
             file_loc = runner_config.project_dir / model_config.options.target_path
 
@@ -59,7 +70,7 @@ class SqlGenerator(BaseGenerator):
             if filepath.is_file() and not overwrite:
                 continue
                 # Don't overwrite existing
-            file_io.write_text(file_loc / name, template_string)
+            self.writer_fn(filepath, template_string)
 
 
 class DocsGenerator(BaseGenerator):
@@ -69,10 +80,12 @@ class DocsGenerator(BaseGenerator):
         find_dbtvault_gen_config_fn: types.FindDbtvaultGenConfig,
         subproc_runner_fn: types.ShellOperationFn,
         schema_file_merger: types.SchemaMergeFn,
+        catalog_loader_fn: types.CatalogLoadFn,
     ):
         super().__init__(get_project_config_fn, find_dbtvault_gen_config_fn)
         self.subproc_runner_fn = subproc_runner_fn
         self.schema_file_merger = schema_file_merger
+        self.catalog_loader_fn = catalog_loader_fn
 
     def run(
         self,
@@ -81,10 +94,15 @@ class DocsGenerator(BaseGenerator):
         args: Optional[str] = None,
         overwrite: bool = False,
     ) -> None:
+        # Initialize config
         runner_config = self.process_config(project_path, target_folder)
-        model_names = params.check_model_names(args)
+
+        # Confirm the existence of the catalog and load it in
         target_dir = runner_config.project_dir / runner_config.target_folder
-        catalog_data = file_io.load_catalog(target_dir)
+        catalog_data = self.catalog_loader_fn(target_dir)
+
+        # Parse the CLI args for arg name overrides, then build name-model pairs
+        model_names = params.check_model_names(args)
         model_list = (
             runner_config.models
             if len(model_names) == 0
@@ -93,15 +111,11 @@ class DocsGenerator(BaseGenerator):
         model_namepairs: List[Tuple[str, types.DBTVGBaseModelParams]] = [
             (fmt_string.format_name(item), item) for item in model_list
         ]
-        # command_list = params.build_exec_docgen_command(
-        #     runner_config.cli_args, model_names
-        # )
-        # output_str = fmt_string.clean_generate_model_yaml(
-        #     self.subproc_runner_fn(command_list)
-        # )
 
-        # base_doc_data = params.load_base_doc_object(output_str)
+        # Extract out the model relationships
         relationship_data = params.find_model_relationships(model_namepairs)
+
+        # Iterate over the models and find what they connect to, storing by target loc
         model_locations: DefaultDict[str, List[types.Mapping]] = defaultdict(list)
         for name, model in model_namepairs:
             relationship = relationship_data[name]
@@ -110,6 +124,8 @@ class DocsGenerator(BaseGenerator):
                 model, catalog_model, relationship
             )
             model_locations[model.options.target_path].append(data_entry)
+
+        # Save the files where appropriate
         filename = literals.DEFAULT_NAME_SCHEMA_YAML
         for location, models in model_locations.items():
             model_payload = {"version": 2, "models": models}

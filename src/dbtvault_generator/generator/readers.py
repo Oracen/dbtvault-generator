@@ -59,7 +59,7 @@ class SchemaMerger:
     def __init__(
         self,
         reader_function: types.ReaderFunction,
-        writer_function: types.WriterFunction,
+        writer_function: types.DictWriterFunction,
     ):
         self.reader_function = reader_function
         self.writer_function = writer_function

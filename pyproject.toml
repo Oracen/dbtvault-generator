@@ -1,8 +1,12 @@
 [tool.pdm]
 [tool.pdm.build]
-excludes=[
-    "src/tests"
-]
+excludes = ["src/tests"]
+# If true, the setup-script will run in a generated `setup.py` file.
+run-setuptools = false
+# Override the Is-Purelib value in the wheel.
+is-purelib = true
+# Change the editable-backend: path(default) or editables
+editable-backend = "editables"
 
 [tool.pdm.dev-dependencies]
 dev = [
@@ -15,11 +19,16 @@ dev = [
     "pytest>=7.2.1",
     "pre-commit>=3.1.1",
     "types-pyyaml>=6.0.12.8",
+    "python-semantic-release>=7.33.2",
 ]
+
+[tool.pdm.version]
+source = "scm"
+write_to = "src/dbtvault_generator/__version__.py"
 
 [project]
 name = "dbtvault-generator"
-version = "0.1.0"
+dynamic = ["version"]
 description = "A little util to help you generate DBTVault SQL files from metadata, while we wait for DBTLabs to add meta to the execution context"
 authors = [{ name = "Alex Stenlake", email = "alex.stenlake@gmail.com" }]
 dependencies = [
@@ -73,3 +82,6 @@ remove-all-unused-imports = true
 ignore-init-module-imports = true
 remove-unused-variables = true
 ignore-pass-statements = false
+
+[tool.commitizen]
+version = "0.2.2"

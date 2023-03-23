@@ -44,9 +44,11 @@ def sql(
     Run the generation from `dbtvault.yml` to sql, per model directory
     """
     config_file_reader = readers.ConfigReader(file_io.read_yml_file)
+
     job_runner = runners.SqlGenerator(
         params.get_dbt_project_config,
         config_file_reader.readin_dbtvg_configs,
+        file_io.write_text,
     )
     job_runner.run(project_path, overwrite)
 
@@ -75,6 +77,7 @@ def docs(
         config_file_reader.readin_dbtvg_configs,
         subprocess.run_shell_operation,
         schema_merge_file.merge_schemas,
+        file_io.load_catalog,
     )
     job_runner.run(project_path, target_folder, args, overwrite)
 
