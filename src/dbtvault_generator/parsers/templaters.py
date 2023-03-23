@@ -14,6 +14,14 @@ render_left = "{{  "
 render_right = "  }}"
 
 
+def clean_jinja_syntax(yaml_string: str) -> str:
+    if "{{" in yaml_string:
+        # Only do jinja replacement if necessary
+        yaml_string = yaml_string.replace("'{{", "{{").replace("}}'", "}}")
+        yaml_string = yaml_string.replace('"{{', "{{").replace('}}"', "}}")
+    return yaml_string
+
+
 def inject_yaml_metadata(dbtvault_parameters: types.Mapping) -> str:
     dbtvault_parameters = deepcopy(dbtvault_parameters)
     param_iterator = list(dbtvault_parameters.items())
@@ -24,6 +32,7 @@ def inject_yaml_metadata(dbtvault_parameters: types.Mapping) -> str:
     yaml_string = yaml.dump(
         dbtvault_parameters, default_flow_style=False, sort_keys=False
     )
+    yaml_string = clean_jinja_syntax(yaml_string)
     code = f"""{set_yaml_metadata}
 
 {yaml_string}
@@ -38,7 +47,7 @@ def inject_yaml_metadata(dbtvault_parameters: types.Mapping) -> str:
 def format_metadata_lookup(params: Any, name: str) -> str:
     # getattr will deliberately fail if there's no matching object
     value = "none" if getattr(params, name) is None else f"metadata_dict['{name}']"
-    return f"{name}={value}"
+    return f"{name}={value}".replace("'{{", "{{")
 
 
 def dbtvault_template_stage(
