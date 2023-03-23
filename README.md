@@ -168,4 +168,13 @@ dbtvault:
 - `options`: this specifies the generation options for the model, and inherits values from the defaults. The choices are the same.
 - `dbtvault_arguments`: Implements the `dbtvault` macro API. Choices depend on the type of model implemented.
 
+You can also use `!include relative/path/to/file.yml` syntax to push config out to other files. This is handy in e.g. keeping all DBTVault config in separate ymls to avoid overloading a single `.yml` file, streamlining PRs and maintenance. All included files will still require the `version` KV-pair DBT looks for, but it will be removed from any included templates. Please note; to use this functionality you'll need to add `dbtvault.yml` to your `.dbtignore` file:
+
+```bash
+# .dbtignore
+dbtvault.yml
+```
+
+DBT does not support the `!include` constructor pattern.
+
 For further information on how to specify `dbtvault` models, please see [the DBTVault macros documentation](https://dbtvault.readthedocs.io/en/latest/macros).

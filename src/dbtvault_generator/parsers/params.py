@@ -15,6 +15,7 @@ from dbtvault_generator.files import file_io
 def recursive_merge(base: types.Mapping, updated: types.Mapping) -> types.Mapping:
     """Recursively merges 2 dicts, one on top of the other"""
     base = deepcopy(base)  # Base is really our "default config"
+    updated = deepcopy(updated)
     keys: Set[str] = set(base)
     new_keys = set(updated)
     for key in keys:
@@ -22,7 +23,7 @@ def recursive_merge(base: types.Mapping, updated: types.Mapping) -> types.Mappin
         if key in updated:
             if type(val) == dict:
                 if type(updated[key] == dict):
-                    recursive_merge(base[key], updated[key])
+                    base[key] = recursive_merge(base[key], updated[key])
             elif type(val) == list:
                 # Handle lists by just appending any non-duplicate items
                 base[key] += [item for item in updated[key] if key not in val]
