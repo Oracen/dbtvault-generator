@@ -162,4 +162,6 @@ dbtvault:
 - `options`: this specifies the generation options for the model, and inherits values from the defaults. The choices are the same.
 - `dbtvault_arguments`: Implements the `dbtvault` macro API. Choices depend on the type of model implemented.
 
+You can also use `!include relative/path/to/file.yml` syntax to push config out to other files. This is handy in e.g. keeping all DBTVault config in separate ymls to avoid overloading a single `.yml` file, streamlining PRs and maintenance.
+
 For further information on how to specify `dbtvault` models, please see [the DBTVault macros documentation](https://dbtvault.readthedocs.io/en/latest/macros).
