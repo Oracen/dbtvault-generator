@@ -15,17 +15,23 @@ from dbtvault_generator.files import file_io
 def recursive_merge(base: types.Mapping, updated: types.Mapping) -> types.Mapping:
     """Recursively merges 2 dicts, one on top of the other"""
     base = deepcopy(base)  # Base is really our "default config"
+    updated = deepcopy(updated)
     keys: Set[str] = set(base)
     new_keys = set(updated)
     for key in keys:
+        # if key == "prefixes":
+        #     print(base[key], updated.get(key, {}))
         val: Any = base[key]
         if key in updated:
             if type(val) == dict:
                 if type(updated[key] == dict):
-                    recursive_merge(base[key], updated[key])
+                    base[key] = recursive_merge(base[key], updated[key])
             else:
                 base[key] = updated[key]
-
+        # if key == "prefixes":
+        #     print("AFTER")
+        #     print(base[key], updated.get(key, {}))
+        #     print()
     # Only iterate over the keys we have to
     outstanding: Set[str] = new_keys - keys
     for key in outstanding:
