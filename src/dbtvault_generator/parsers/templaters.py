@@ -10,18 +10,18 @@ spc = "        "
 endset = "{%- endset -%}"
 set_yaml_metadata = "{%- set yaml_metadata -%}"
 set_metadata_dict = "{% set metadata_dict = fromyaml(yaml_metadata) %}"
-render_left = "{{"
-render_right = "}}"
+inj_left = "{{"
+inj_right = "}}"
 
 
 def clean_jinja_syntax(yaml_string: str) -> str:
-    if render_left in yaml_string:
+    if inj_left in yaml_string:
         # Only do jinja replacement if necessary
-        yaml_string = yaml_string.replace(f"'{render_left}", render_left).replace(
-            f"{render_right}'", render_right
+        yaml_string = yaml_string.replace(f"'{inj_left}", inj_left).replace(
+            f"{inj_right}'", inj_right
         )
-        yaml_string = yaml_string.replace(f'"{render_left}', render_left).replace(
-            f'{render_right}"', render_right
+        yaml_string = yaml_string.replace(f'"{inj_left}', inj_left).replace(
+            f'{inj_right}"', inj_right
         )
     return yaml_string
 
@@ -40,12 +40,16 @@ def inject_yaml_metadata(dbtvault_parameters: types.Mapping) -> str:
     code = f"""{set_yaml_metadata}
 
 {yaml_string}
-
 {endset}
 
-{set_metadata_dict}
-"""
+{set_metadata_dict}"""
     return code
+
+
+def render_macro(code: str) -> str:
+    return f"""{inj_left}
+{code}
+{inj_right}"""
 
 
 def format_metadata_lookup(params: Any, name: str) -> str:
@@ -66,9 +70,7 @@ def dbtvault_template_stage(
 {spc}{format_metadata_lookup(stage_params, 'hashed_columns')},
 {spc}{format_metadata_lookup(stage_params, 'ranked_columns')}
 )"""
-    return f"""{render_left}
-{code}
-{render_right}"""
+    return render_macro(code)
 
 
 def dbtvault_template_hub(
@@ -83,7 +85,7 @@ def dbtvault_template_hub(
 {spc}{format_metadata_lookup(hub_params, 'src_source')},
 {spc}{format_metadata_lookup(hub_params, 'source_model')}
 )"""
-    return f"""{render_left}{code}{render_right}"""
+    return render_macro(code)
 
 
 def dbtvault_template_link(
@@ -98,7 +100,7 @@ def dbtvault_template_link(
 {spc}{format_metadata_lookup(link_params, 'src_source')},
 {spc}{format_metadata_lookup(link_params, 'source_model')}
 )"""
-    return f"""{render_left}{code}{render_right}"""
+    return render_macro(code)
 
 
 def dbtvault_template_t_link(
@@ -115,7 +117,7 @@ def dbtvault_template_t_link(
 {spc}{format_metadata_lookup(t_link_params, 'src_source')},
 {spc}{format_metadata_lookup(t_link_params, 'source_model')}
 )"""
-    return f"""{render_left}{code}{render_right}"""
+    return render_macro(code)
 
 
 def dbtvault_template_sat(
@@ -132,7 +134,7 @@ def dbtvault_template_sat(
 {spc}{format_metadata_lookup(sat_params, 'src_source')},
 {spc}{format_metadata_lookup(sat_params, 'source_model')}
 )"""
-    return f"""{render_left}{code}{render_right}"""
+    return render_macro(code)
 
 
 def dbtvault_template_eff_sat(
@@ -151,7 +153,7 @@ def dbtvault_template_eff_sat(
 {spc}{format_metadata_lookup(eff_sat_params, 'src_source')},
 {spc}{format_metadata_lookup(eff_sat_params, 'source_model')}
 )"""
-    return f"""{render_left}{code}{render_right}"""
+    return render_macro(code)
 
 
 def dbtvault_template_ma_sat(
@@ -169,7 +171,7 @@ def dbtvault_template_ma_sat(
 {spc}{format_metadata_lookup(ma_sat_params, 'src_source')},
 {spc}{format_metadata_lookup(ma_sat_params, 'source_model')}
 )"""
-    return f"""{render_left}{code}{render_right}"""
+    return render_macro(code)
 
 
 def dbtvault_template_xts(
@@ -184,7 +186,7 @@ def dbtvault_template_xts(
 {spc}{format_metadata_lookup(xts_params, 'src_source')},
 {spc}{format_metadata_lookup(xts_params, 'source_model')}
 )"""
-    return f"""{render_left}{code}{render_right}"""
+    return render_macro(code)
 
 
 def dbtvault_template_pit(
@@ -199,7 +201,7 @@ def dbtvault_template_pit(
 {spc}{format_metadata_lookup(pit_params, 'src_ldts')},
 {spc}{format_metadata_lookup(pit_params, 'source_model')}
 )"""
-    return f"""{render_left}{code}{render_right}"""
+    return render_macro(code)
 
 
 def dbtvault_template_bridge(bridge_params: types.BridgeParams, macro: str) -> str:
@@ -211,9 +213,7 @@ def dbtvault_template_bridge(bridge_params: types.BridgeParams, macro: str) -> s
 {spc}{format_metadata_lookup(bridge_params, 'as_of_dates_table')},
 {spc}{format_metadata_lookup(bridge_params, 'stage_tables_ldts')}
 )"""
-    return f"""{render_left}
-{code}
-{render_right}"""
+    return render_macro(code)
 
 
 class BaseTemplater(abc.ABC):
