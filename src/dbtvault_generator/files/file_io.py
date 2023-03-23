@@ -1,4 +1,5 @@
 import json
+from io import TextIOWrapper
 from pathlib import Path
 from typing import Dict, Type, Union
 
@@ -9,12 +10,38 @@ from yaml.parser import ParserError
 from dbtvault_generator.constants import exceptions, literals, types
 
 
+class Loader(yaml.SafeLoader):
+    """
+    Full credit to: https://stackoverflow.com/questions/
+        528281/how-can-i-include-a-yaml-file-inside-another
+    """
+
+    def __init__(self, stream: TextIOWrapper):
+        print("** ", stream.name)
+        self._root = Path(stream.name).parent
+
+        super(Loader, self).__init__(stream)
+
+    def include(self, node: yaml.ScalarNode) -> types.Mapping:
+        print(self._root)
+        filename = self._root / str(self.construct_scalar(node))
+        print(filename)
+        print(filename.is_file())
+        with open(filename, "r") as stream:
+            data = yaml.load(stream, Loader)
+
+            return data
+
+
+Loader.add_constructor("!include", Loader.include)
+
+
 def read_yml_file(
     filepath: Union[Path, str], excepion: Type[Exception], message: str
 ) -> types.Mapping:
     try:
         with open(filepath, "r") as stream:
-            output: types.Mapping = yaml.safe_load(stream)
+            output: types.Mapping = yaml.load(stream, Loader)
     except ParserError:
         raise excepion(message)
     return output
