@@ -7,7 +7,7 @@ from dbtvault_generator.files import file_io
 from dbtvault_generator.generator import readers, runners, subprocess
 from dbtvault_generator.parsers import params
 
-dbtvgen = typer.Typer()
+dbtvgen = typer.Typer(pretty_exceptions_show_locals=False)
 
 param_project_dir: Path = typer.Option(  # type: ignore
     Path.cwd(),
