@@ -226,7 +226,7 @@ class BaseTemplater(abc.ABC):
 
 
 class ModelStageTemplater(BaseTemplater):
-    default_macro = "dbtvault.stage"
+    default_macro = "automate_dv.stage"
 
     def __call__(self, params: types.ModelStageParams) -> str:
         macro = params.options.custom_macros.get(params.model_type, self.default_macro)
@@ -237,7 +237,7 @@ class ModelStageTemplater(BaseTemplater):
 
 
 class ModelHubTemplater(BaseTemplater):
-    default_macro = "dbtvault.hub"
+    default_macro = "automate_dv.hub"
 
     def __call__(self, params: types.ModelHubParams) -> str:
         macro = params.options.custom_macros.get(params.model_type, self.default_macro)
@@ -247,7 +247,7 @@ class ModelHubTemplater(BaseTemplater):
 
 
 class ModelLinkTemplater(BaseTemplater):
-    default_macro = "dbtvault.link"
+    default_macro = "automate_dv.link"
 
     def __call__(self, params: types.ModelLinkParams) -> str:
         macro = params.options.custom_macros.get(params.model_type, self.default_macro)
@@ -258,7 +258,7 @@ class ModelLinkTemplater(BaseTemplater):
 
 
 class ModelTLinkTemplater(BaseTemplater):
-    default_macro = "dbtvault.t_link"
+    default_macro = "automate_dv.t_link"
 
     def __call__(self, params: types.ModelTLinkParams) -> str:
         macro = params.options.custom_macros.get(params.model_type, self.default_macro)
@@ -268,7 +268,7 @@ class ModelTLinkTemplater(BaseTemplater):
 
 
 class ModelSatTemplater(BaseTemplater):
-    default_macro = "dbtvault.sat"
+    default_macro = "automate_dv.sat"
 
     def __call__(self, params: types.ModelSatParams) -> str:
         macro = params.options.custom_macros.get(params.model_type, self.default_macro)
@@ -278,7 +278,7 @@ class ModelSatTemplater(BaseTemplater):
 
 
 class ModelEffSatTemplater(BaseTemplater):
-    default_macro = "dbtvault.eff_sat"
+    default_macro = "automate_dv.eff_sat"
 
     def __call__(self, params: types.ModelEffSatParams) -> str:
         macro = params.options.custom_macros.get(params.model_type, self.default_macro)
@@ -288,7 +288,7 @@ class ModelEffSatTemplater(BaseTemplater):
 
 
 class ModelMaSatTemplater(BaseTemplater):
-    default_macro = "dbtvault.ma_sat"
+    default_macro = "automate_dv.ma_sat"
 
     def __call__(self, params: types.ModelMaSatParams) -> str:
         macro = params.options.custom_macros.get(params.model_type, self.default_macro)
@@ -298,7 +298,7 @@ class ModelMaSatTemplater(BaseTemplater):
 
 
 class ModelXtsTemplater(BaseTemplater):
-    default_macro = "dbtvault.xts"
+    default_macro = "automate_dv.xts"
 
     def __call__(self, params: types.ModelXtsParams) -> str:
         macro = params.options.custom_macros.get(params.model_type, self.default_macro)
@@ -308,7 +308,7 @@ class ModelXtsTemplater(BaseTemplater):
 
 
 class ModelPitTemplater(BaseTemplater):
-    default_macro = "dbtvault.pit"
+    default_macro = "automate_dv.pit"
 
     def __call__(self, params: types.ModelPitParams) -> str:
         macro = params.options.custom_macros.get(params.model_type, self.default_macro)
@@ -318,7 +318,7 @@ class ModelPitTemplater(BaseTemplater):
 
 
 class ModelBridgeTemplater(BaseTemplater):
-    default_macro = "dbtvault.bridge"
+    default_macro = "automate_dv.bridge"
 
     def __call__(self, params: types.ModelBridgeParams) -> str:
         macro = params.options.custom_macros.get(params.model_type, self.default_macro)
