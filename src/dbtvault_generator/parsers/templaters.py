@@ -204,7 +204,10 @@ def dbtvault_template_pit(
     return render_macro(code)
 
 
-def dbtvault_template_bridge(bridge_params: types.BridgeParams, macro: str) -> str:
+def dbtvault_template_bridge(
+    bridge_params: types.BridgeParams, macro: Optional[str] = None
+) -> str:
+    macro = "automate_dv.bridge" if macro is None else macro
     code = f"""{macro}(
 {spc}{format_metadata_lookup(bridge_params, 'source_model')},
 {spc}{format_metadata_lookup(bridge_params, 'src_pk')},
