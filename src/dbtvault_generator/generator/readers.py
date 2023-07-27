@@ -21,10 +21,8 @@ class ConfigReader:
         files = search.find_files(search_path, literals.DBTVG_YAML_NAME, recursive)
         # Strip the leading path
         keys = [
-            "."
-            + str(item)
-            .replace(str(project_dir), "")
-            .replace(f"/{literals.DBTVG_YAML_NAME}", "")
+            ".\\"
+            +str((Path(item).parent).relative_to(project_dir)).replace("/", "\\")
             for item in files
         ]
         configs: List[types.Mapping] = [
