@@ -61,7 +61,7 @@ def format_metadata_lookup(params: Any, name: str) -> str:
 def dbtvault_template_stage(
     stage_params: types.StageParams, macro: Optional[str] = None
 ) -> str:
-    macro = "dbtvault.stage" if macro is None else macro
+    macro = "automate_dv.stage" if macro is None else macro
     code = f"""{macro}(
 {spc}{format_metadata_lookup(stage_params, 'include_source_columns')},
 {spc}{format_metadata_lookup(stage_params, 'source_model')},
@@ -76,7 +76,7 @@ def dbtvault_template_stage(
 def dbtvault_template_hub(
     hub_params: types.HubParams, macro: Optional[str] = None
 ) -> str:
-    macro = "dbtvault.hub" if macro is None else macro
+    macro = "automate_dv.hub" if macro is None else macro
     code = f"""{macro}(
 {spc}{format_metadata_lookup(hub_params, 'src_pk')},
 {spc}{format_metadata_lookup(hub_params, 'src_nk')},
@@ -91,7 +91,7 @@ def dbtvault_template_hub(
 def dbtvault_template_link(
     link_params: types.LinkParams, macro: Optional[str] = None
 ) -> str:
-    macro = "dbtvault.link" if macro is None else macro
+    macro = "automate_dv.link" if macro is None else macro
     code = f"""{macro}(
 {spc}{format_metadata_lookup(link_params, 'src_pk')},
 {spc}{format_metadata_lookup(link_params, 'src_fk')},
@@ -106,7 +106,7 @@ def dbtvault_template_link(
 def dbtvault_template_t_link(
     t_link_params: types.TLinkParams, macro: Optional[str] = None
 ) -> str:
-    macro = "dbtvault.t_link" if macro is None else macro
+    macro = "automate_dv.t_link" if macro is None else macro
     code = f"""{macro}(
 {spc}{format_metadata_lookup(t_link_params, 'src_pk')},
 {spc}{format_metadata_lookup(t_link_params, 'src_fk')},
@@ -123,7 +123,7 @@ def dbtvault_template_t_link(
 def dbtvault_template_sat(
     sat_params: types.SatParams, macro: Optional[str] = None
 ) -> str:
-    macro = "dbtvault.sat" if macro is None else macro
+    macro = "automate_dv.sat" if macro is None else macro
     code = f"""{macro}(
 {spc}{format_metadata_lookup(sat_params, 'src_pk')},
 {spc}{format_metadata_lookup(sat_params, 'src_hashdiff')},
@@ -140,7 +140,7 @@ def dbtvault_template_sat(
 def dbtvault_template_eff_sat(
     eff_sat_params: types.EffSatParams, macro: Optional[str] = None
 ) -> str:
-    macro = "dbtvault.eff_sat" if macro is None else macro
+    macro = "automate_dv.eff_sat" if macro is None else macro
     code = f"""{macro}(
 {spc}{format_metadata_lookup(eff_sat_params, 'src_pk')},
 {spc}{format_metadata_lookup(eff_sat_params, 'src_dfk')},
@@ -159,7 +159,7 @@ def dbtvault_template_eff_sat(
 def dbtvault_template_ma_sat(
     ma_sat_params: types.MaSatParams, macro: Optional[str] = None
 ) -> str:
-    macro = "dbtvault.ma_sat" if macro is None else macro
+    macro = "automate_dv.ma_sat" if macro is None else macro
     code = f"""{macro}(
 {spc}{format_metadata_lookup(ma_sat_params, 'src_pk')},
 {spc}{format_metadata_lookup(ma_sat_params, 'src_cdk')},
@@ -177,7 +177,7 @@ def dbtvault_template_ma_sat(
 def dbtvault_template_xts(
     xts_params: types.XtsParams, macro: Optional[str] = None
 ) -> str:
-    macro = "dbtvault.xts" if macro is None else macro
+    macro = "automate_dv.xts" if macro is None else macro
     code = f"""{macro}(
 {spc}{format_metadata_lookup(xts_params, 'src_pk')},
 {spc}{format_metadata_lookup(xts_params, 'src_satellite')},
@@ -192,7 +192,7 @@ def dbtvault_template_xts(
 def dbtvault_template_pit(
     pit_params: types.PitParams, macro: Optional[str] = None
 ) -> str:
-    macro = "dbtvault.pit" if macro is None else macro
+    macro = "automate_dv.pit" if macro is None else macro
     code = f"""{macro}(
 {spc}{format_metadata_lookup(pit_params, 'src_pk')},
 {spc}{format_metadata_lookup(pit_params, 'as_of_dates_table')},
@@ -204,7 +204,10 @@ def dbtvault_template_pit(
     return render_macro(code)
 
 
-def dbtvault_template_bridge(bridge_params: types.BridgeParams, macro: str) -> str:
+def dbtvault_template_bridge(
+    bridge_params: types.BridgeParams, macro: Optional[str] = None
+) -> str:
+    macro = "automate_dv.bridge" if macro is None else macro
     code = f"""{macro}(
 {spc}{format_metadata_lookup(bridge_params, 'source_model')},
 {spc}{format_metadata_lookup(bridge_params, 'src_pk')},
@@ -223,7 +226,7 @@ class BaseTemplater(abc.ABC):
 
 
 class ModelStageTemplater(BaseTemplater):
-    default_macro = "dbtvault.stage"
+    default_macro = "automate_dv.stage"
 
     def __call__(self, params: types.ModelStageParams) -> str:
         macro = params.options.custom_macros.get(params.model_type, self.default_macro)
@@ -234,7 +237,7 @@ class ModelStageTemplater(BaseTemplater):
 
 
 class ModelHubTemplater(BaseTemplater):
-    default_macro = "dbtvault.hub"
+    default_macro = "automate_dv.hub"
 
     def __call__(self, params: types.ModelHubParams) -> str:
         macro = params.options.custom_macros.get(params.model_type, self.default_macro)
@@ -244,7 +247,7 @@ class ModelHubTemplater(BaseTemplater):
 
 
 class ModelLinkTemplater(BaseTemplater):
-    default_macro = "dbtvault.link"
+    default_macro = "automate_dv.link"
 
     def __call__(self, params: types.ModelLinkParams) -> str:
         macro = params.options.custom_macros.get(params.model_type, self.default_macro)
@@ -255,7 +258,7 @@ class ModelLinkTemplater(BaseTemplater):
 
 
 class ModelTLinkTemplater(BaseTemplater):
-    default_macro = "dbtvault.t_link"
+    default_macro = "automate_dv.t_link"
 
     def __call__(self, params: types.ModelTLinkParams) -> str:
         macro = params.options.custom_macros.get(params.model_type, self.default_macro)
@@ -265,7 +268,7 @@ class ModelTLinkTemplater(BaseTemplater):
 
 
 class ModelSatTemplater(BaseTemplater):
-    default_macro = "dbtvault.sat"
+    default_macro = "automate_dv.sat"
 
     def __call__(self, params: types.ModelSatParams) -> str:
         macro = params.options.custom_macros.get(params.model_type, self.default_macro)
@@ -275,7 +278,7 @@ class ModelSatTemplater(BaseTemplater):
 
 
 class ModelEffSatTemplater(BaseTemplater):
-    default_macro = "dbtvault.eff_sat"
+    default_macro = "automate_dv.eff_sat"
 
     def __call__(self, params: types.ModelEffSatParams) -> str:
         macro = params.options.custom_macros.get(params.model_type, self.default_macro)
@@ -285,7 +288,7 @@ class ModelEffSatTemplater(BaseTemplater):
 
 
 class ModelMaSatTemplater(BaseTemplater):
-    default_macro = "dbtvault.ma_sat"
+    default_macro = "automate_dv.ma_sat"
 
     def __call__(self, params: types.ModelMaSatParams) -> str:
         macro = params.options.custom_macros.get(params.model_type, self.default_macro)
@@ -295,7 +298,7 @@ class ModelMaSatTemplater(BaseTemplater):
 
 
 class ModelXtsTemplater(BaseTemplater):
-    default_macro = "dbtvault.xts"
+    default_macro = "automate_dv.xts"
 
     def __call__(self, params: types.ModelXtsParams) -> str:
         macro = params.options.custom_macros.get(params.model_type, self.default_macro)
@@ -305,7 +308,7 @@ class ModelXtsTemplater(BaseTemplater):
 
 
 class ModelPitTemplater(BaseTemplater):
-    default_macro = "dbtvault.pit"
+    default_macro = "automate_dv.pit"
 
     def __call__(self, params: types.ModelPitParams) -> str:
         macro = params.options.custom_macros.get(params.model_type, self.default_macro)
@@ -315,7 +318,7 @@ class ModelPitTemplater(BaseTemplater):
 
 
 class ModelBridgeTemplater(BaseTemplater):
-    default_macro = "dbtvault.bridge"
+    default_macro = "automate_dv.bridge"
 
     def __call__(self, params: types.ModelBridgeParams) -> str:
         macro = params.options.custom_macros.get(params.model_type, self.default_macro)
